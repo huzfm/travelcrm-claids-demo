@@ -1,0 +1,593 @@
+{
+  "currentFieldsAudit": {
+    "title": {
+      "currentlyShown": true,
+      "inDataModel": true,
+      "issues": ["Shown in EditTripDialog, mixed with all other meta fields — should be Step 1"],
+      "suggestedStep": "1"
+    },
+    "tripId": {
+      "currentlyShown": true,
+      "inDataModel": true,
+      "issues": [
+        "Shown in EditTripDialog alongside inclusions — not needed at creation, can be auto-generated",
+        "Shown prematurely before basic details are confirmed"
+      ],
+      "suggestedStep": "4"
+    },
+    "destination": {
+      "currentlyShown": true,
+      "inDataModel": true,
+      "issues": [
+        "Shown in both CreateItineraryDialog AND EditTripDialog — redundant",
+        "Should be Step 1 with prefilled from lead.destination"
+      ],
+      "suggestedStep": "1"
+    },
+    "tripType": {
+      "currentlyShown": true,
+      "inDataModel": true,
+      "issues": [
+        "Only shown in EditTripDialog, not in CreateItineraryDialog — inconsistent",
+        "Should be Step 1 with prefilled from lead.tripType"
+      ],
+      "suggestedStep": "1"
+    },
+    "startDate": {
+      "currentlyShown": true,
+      "inDataModel": true,
+      "issues": [
+        "Shown in CreateItineraryDialog — good",
+        "Shown again in EditTripDialog — redundant duplicate",
+        "Should be Step 1 with prefilled from lead.travelDateFrom"
+      ],
+      "suggestedStep": "1"
+    },
+    "endDate": {
+      "currentlyShown": true,
+      "inDataModel": true,
+      "issues": [
+        "Same as startDate — redundant in EditTripDialog",
+        "Should be Step 1 with prefilled from lead.travelDateTo"
+      ],
+      "suggestedStep": "1"
+    },
+    "travelers": {
+      "currentlyShown": true,
+      "inDataModel": true,
+      "issues": [
+        "Called 'totalTravelers' in API, 'travelers' in EditTripDialog — naming inconsistency",
+        "Should be Step 1 with prefilled from lead.numberOfPax"
+      ],
+      "suggestedStep": "1"
+    },
+    "days (count)": {
+      "currentlyShown": true,
+      "inDataModel": true,
+      "issues": [
+        "Handled separately in CreateItineraryDialog as string input",
+        "Should be auto-computed from startDate + endDate in wizard"
+      ],
+      "suggestedStep": "1"
+    },
+    "totalCost": {
+      "currentlyShown": true,
+      "inDataModel": true,
+      "issues": [
+        "Manual entry in EditTripDialog — should be auto-calculated from day selections",
+        "Shown in same modal as inclusions — wrong grouping"
+      ],
+      "suggestedStep": "4"
+    },
+    "hotelId (per day)": {
+      "currentlyShown": false,
+      "inDataModel": true,
+      "issues": [
+        "Currently only assigned to Day 1 via one-time HotelAutocomplete in CreateItineraryDialog",
+        "All other days get empty day structures — major UX gap",
+        "Should be Step 2: per-day hotel card with checkbox selector"
+      ],
+      "suggestedStep": "2"
+    },
+    "selectedRoomType (per day)": {
+      "currentlyShown": false,
+      "inDataModel": true,
+      "issues": [
+        "Only assigned via day-card edit — not during creation",
+        "Should be inline checkbox grid in Step 2 hotel card"
+      ],
+      "suggestedStep": "2"
+    },
+    "selectedMealPlan (per day)": {
+      "currentlyShown": false,
+      "inDataModel": true,
+      "issues": [
+        "Same as selectedRoomType — not in creation flow",
+        "Should be inline checkbox in Step 2 hotel card"
+      ],
+      "suggestedStep": "2"
+    },
+    "vehicleId (per day)": {
+      "currentlyShown": false,
+      "inDataModel": true,
+      "issues": [
+        "Currently only assigned to Day 1 via one-time VehicleAutocomplete",
+        "Major UX gap — no per-day vehicle assignment"
+      ],
+      "suggestedStep": "3"
+    },
+    "selectedVehicle (per day)": {
+      "currentlyShown": false,
+      "inDataModel": true,
+      "issues": [
+        "Not in creation flow at all",
+        "Should be Step 3: per-day vehicle card with checkbox selectors"
+      ],
+      "suggestedStep": "3"
+    },
+    "included": {
+      "currentlyShown": true,
+      "inDataModel": true,
+      "issues": [
+        "Shown in EditTripDialog mixed with cost/quote fields — wrong order",
+        "Should be Step 4 — set after hotel/vehicle are selected"
+      ],
+      "suggestedStep": "4"
+    },
+    "excluded": {
+      "currentlyShown": true,
+      "inDataModel": true,
+      "issues": ["Same grouping issue as included", "Should be Step 4"],
+      "suggestedStep": "4"
+    },
+    "notes": {
+      "currentlyShown": true,
+      "inDataModel": true,
+      "issues": [
+        "Shown in EditTripDialog — fine at Step 4",
+        "Could use commonNotes from history as suggestions"
+      ],
+      "suggestedStep": "4"
+    },
+    "quotes": {
+      "currentlyShown": true,
+      "inDataModel": true,
+      "issues": [
+        "Package options in EditTripDialog — complex calculator",
+        "Shown before hotel/vehicle data is even collected — premature",
+        "Should be Step 4, after auto-calculation from day data"
+      ],
+      "suggestedStep": "4"
+    },
+    "selectedQuotes": {
+      "currentlyShown": true,
+      "inDataModel": true,
+      "issues": ["Checkbox selection of which packages to offer — fine at Step 4"],
+      "suggestedStep": "4"
+    },
+    "coverImage": {
+      "currentlyShown": false,
+      "inDataModel": true,
+      "issues": ["Not exposed to user at all — fine, backend handles it"],
+      "suggestedStep": null
+    },
+    "templateId": {
+      "currentlyShown": true,
+      "inDataModel": true,
+      "issues": [
+        "Shown as dropdown in CreateItineraryDialog — fine as a source option",
+        "Should remain in Step 1 as optional template selection"
+      ],
+      "suggestedStep": "1"
+    },
+    "activities (per day)": {
+      "currentlyShown": true,
+      "inDataModel": true,
+      "issues": [
+        "Managed via day-card activity-dialog — already per-day and inline",
+        "Can remain in the day-timeline view after creation"
+      ],
+      "suggestedStep": null
+    },
+    "meals (per day)": {
+      "currentlyShown": true,
+      "inDataModel": true,
+      "issues": [
+        "Handled via day-card — already per-day",
+        "Can remain in day-timeline view, synced with meal plan selection"
+      ],
+      "suggestedStep": null
+    }
+  },
+
+  "wizardStepSchema": {
+    "steps": [
+      {
+        "step": 1,
+        "title": "Basic Trip Details",
+        "description": "Set the foundation — destination, dates, and who's traveling",
+        "fields": [
+          {
+            "key": "title",
+            "label": "Trip Name",
+            "type": "text",
+            "required": true,
+            "placeholder": "e.g., John's Dubai Adventure",
+            "autoPrefill": "lead.name + destination + 'Trip'"
+          },
+          {
+            "key": "templateId",
+            "label": "Use Template",
+            "type": "select",
+            "required": false,
+            "options": "from useItineraryTemplates()",
+            "hint": "Start from a saved template or begin from scratch"
+          },
+          {
+            "key": "destination",
+            "label": "Destination",
+            "type": "text",
+            "required": true,
+            "placeholder": "Dubai, Bali, Kashmir...",
+            "autoPrefill": "lead.destination || previousTrip.destination"
+          },
+          {
+            "key": "startDate",
+            "label": "Start Date",
+            "type": "date",
+            "required": true,
+            "autoPrefill": "lead.travelDateFrom"
+          },
+          {
+            "key": "endDate",
+            "label": "End Date",
+            "type": "date",
+            "required": true,
+            "autoPrefill": "lead.travelDateTo"
+          },
+          {
+            "key": "totalTravelers",
+            "label": "Travelers",
+            "type": "number",
+            "required": true,
+            "min": 1,
+            "autoPrefill": "lead.numberOfPax"
+          },
+          {
+            "key": "tripType",
+            "label": "Trip Type",
+            "type": "select",
+            "required": false,
+            "options": [
+              "HONEYMOON",
+              "FAMILY",
+              "ADVENTURE",
+              "BUSINESS",
+              "SOLO",
+              "GROUP",
+              "DOMESTIC",
+              "INTERNATIONAL"
+            ],
+            "autoPrefill": "lead.tripType"
+          }
+        ],
+        "autoPrefillSources": [
+          "lead.destination",
+          "lead.travelDateFrom",
+          "lead.travelDateTo",
+          "lead.numberOfPax",
+          "lead.tripType",
+          "lastItinerary.destination",
+          "lastItinerary.tripType",
+          "commonDestinations from history"
+        ],
+        "validation": {
+          "required": ["title", "destination", "startDate", "endDate", "totalTravelers"],
+          "custom": [
+            {
+              "field": "endDate",
+              "rule": "endDate >= startDate",
+              "message": "End date must be on or after start date"
+            },
+            {
+              "field": "totalTravelers",
+              "rule": "totalTravelers >= 1",
+              "message": "At least 1 traveler required"
+            }
+          ]
+        },
+        "onComplete": "Compute tripDuration = endDate - startDate in days. Generate empty day structures."
+      },
+      {
+        "step": 2,
+        "title": "Hotels",
+        "description": "Assign hotels for each day — pick a hotel, then choose room type and meal plan",
+        "fields": [
+          {
+            "key": "days[].hotelId",
+            "label": "Hotel",
+            "type": "hotel-autocomplete",
+            "required": true,
+            "showPerDay": true
+          },
+          {
+            "key": "days[].selectedRoomType",
+            "label": "Room Type",
+            "type": "checkbox-grid",
+            "required": true,
+            "showPerDay": true,
+            "source": "hotel.roomTypes"
+          },
+          {
+            "key": "days[].selectedMealPlan",
+            "label": "Meal Plan",
+            "type": "checkbox-grid",
+            "required": true,
+            "showPerDay": true,
+            "source": "hotel.mealPlans"
+          },
+          {
+            "key": "days[].roomCount",
+            "label": "Rooms Needed",
+            "type": "number",
+            "required": true,
+            "showPerDay": true,
+            "default": "ceil(totalTravelers / 2)"
+          },
+          {
+            "key": "days[].hotelSpan",
+            "label": "Same hotel for multiple days?",
+            "type": "toggle",
+            "required": false,
+            "showPerDay": true,
+            "hint": "Link consecutive days to same hotel — only fill once"
+          }
+        ],
+        "uiPattern": "Per-day card stack: each day is a card with hotel selector at top, then inline room type checkboxes, meal plan checkboxes, and room count. No modal. No separate form.",
+        "hotelCardLayout": {
+          "header": "Day X — [Date] | Hotel selector (HotelAutocomplete with destination filter)",
+          "body": "Room Type checkboxes (from hotel.roomTypes) | Meal Plan checkboxes (from hotel.mealPlans)",
+          "footer": "Room count number input | 'Apply to next N days' toggle",
+          "collapsedState": "Hotel name + room type + meal plan summary chip"
+        },
+        "spanningLogic": "If user selects 'same hotel for 3 days', collapse those 3 day cards into one hotel entry and show day range in the card header.",
+        "validation": {
+          "required": ["days[].hotelId", "days[].selectedRoomType", "days[].selectedMealPlan"],
+          "custom": [
+            {
+              "field": "days[].hotelId",
+              "rule": "hotelId must be valid hotel id from catalogue",
+              "message": "Please select a hotel from the database"
+            }
+          ]
+        },
+        "onComplete": "Compute per-day hotel costs: roomType.basePrice * roomCount * travelers + mealPlan.pricePerNight * roomCount * travelers. Store in day costs."
+      },
+      {
+        "step": 3,
+        "title": "Transport",
+        "description": "Assign vehicles for each day — pick a vehicle, then choose type and driver options",
+        "fields": [
+          {
+            "key": "days[].vehicleId",
+            "label": "Vehicle",
+            "type": "vehicle-autocomplete",
+            "required": false,
+            "showPerDay": true,
+            "hint": "Optional — leave blank if no vehicle needed that day"
+          },
+          {
+            "key": "days[].vehicleType",
+            "label": "Vehicle Type",
+            "type": "checkbox-group",
+            "required": false,
+            "showPerDay": true,
+            "source": "vehicle.vehicleType"
+          },
+          {
+            "key": "days[].driverIncluded",
+            "label": "Driver",
+            "type": "checkbox",
+            "required": false,
+            "showPerDay": true,
+            "default": "true",
+            "hint": "Uncheck if driver not needed"
+          },
+          {
+            "key": "days[].pickupPoint",
+            "label": "Pickup",
+            "type": "text",
+            "required": false,
+            "showPerDay": true
+          },
+          {
+            "key": "days[].dropPoint",
+            "label": "Drop",
+            "type": "text",
+            "required": false,
+            "showPerDay": true
+          }
+        ],
+        "uiPattern": "Per-day card stack: each day is a card with vehicle selector at top, then inline vehicle type checkboxes and driver toggle. 'No vehicle needed' skip link per day.",
+        "vehicleCardLayout": {
+          "header": "Day X — [Date] | Vehicle selector (VehicleAutocomplete) | 'Skip this day' link",
+          "body": "Vehicle type checkbox group | Driver included toggle | Pickup/Drop text inputs",
+          "collapsedState": "Vehicle name + driver indicator + pickup→drop summary"
+        },
+        "validation": {
+          "required": [],
+          "custom": []
+        },
+        "onComplete": "Compute per-day vehicle costs: selectedVehicle.ratePerDay * days. Store in day costs."
+      },
+      {
+        "step": 4,
+        "title": "Final Details",
+        "description": "Review your selections, add inclusions and exclusions, and set up package options",
+        "fields": [
+          {
+            "key": "included",
+            "label": "Inclusions",
+            "type": "checkbox-tags + custom-input",
+            "required": false,
+            "defaults": ["Flights", "Hotels", "Transfers", "Meals", "Sightseeing"],
+            "showPerDay": false
+          },
+          {
+            "key": "excluded",
+            "label": "Exclusions",
+            "type": "checkbox-tags + custom-input",
+            "required": false,
+            "defaults": ["Personal Expenses", "Visa Fees", "Travel Insurance"],
+            "showPerDay": false
+          },
+          {
+            "key": "notes",
+            "label": "Notes",
+            "type": "textarea",
+            "required": false,
+            "hint": "General notes for the traveler",
+            "suggestions": "commonNotes from lead history"
+          },
+          {
+            "key": "tripId",
+            "label": "Trip ID",
+            "type": "text",
+            "required": false,
+            "autoGenerate": true,
+            "hint": "Auto-generated if left blank"
+          },
+          {
+            "key": "quotes",
+            "label": "Package Options",
+            "type": "quote-cards",
+            "required": false,
+            "autoCalcFromDays": true
+          }
+        ],
+        "uiPattern": "Summary section at top (read-only review of all 4 steps) + editable inclusions/exclusions/notes/package options below.",
+        "quoteCards": {
+          "autoCalcBreakdown": "hotelCost, vehicleCost from day data * travelers",
+          "quickTemplates": "Basic, Standard, Premium, Luxury, Advance with predefined features",
+          "manualEntry": "Allow custom package creation",
+          "liveCalc": "Subtotal + margin % + GST % = Grand Total, with 'Apply to price field' button"
+        },
+        "summarySection": {
+          "destination": "readOnly",
+          "dates": "readOnly: startDate → endDate (X days)",
+          "travelers": "readOnly",
+          "hotelSummary": "readOnly: Hotel names per day with room type + meal plan chips",
+          "vehicleSummary": "readOnly: Vehicle names per day with driver indicator",
+          "totalEstimate": "auto-calculated from day costs"
+        },
+        "validation": {
+          "required": [],
+          "custom": []
+        },
+        "onComplete": "Call createItinerary API with full daysJson, redirect to /itineraries/[id]/page.tsx"
+      }
+    ]
+  },
+
+  "removedRedundantFields": [
+    {
+      "field": "totalCost",
+      "reason": "Should be auto-calculated from day selections, not manually entered"
+    },
+    {
+      "field": "duplicate startDate/endDate in EditTripDialog",
+      "reason": "Already set in CreateItineraryDialog — EditTripDialog shows it redundantly"
+    },
+    {
+      "field": "duplicate destination in EditTripDialog",
+      "reason": "Already set in CreateItineraryDialog — shown redundantly again"
+    }
+  ],
+
+  "reorderedFields": {
+    "fromCreateItineraryDialog": {
+      "currentOrder": [
+        "title",
+        "destination",
+        "templateId",
+        "startDate",
+        "endDate",
+        "hotelId",
+        "vehicleId",
+        "days",
+        "totalTravelers"
+      ],
+      "newOrder_step1": [
+        "title",
+        "templateId (optional)",
+        "destination",
+        "startDate",
+        "endDate",
+        "totalTravelers",
+        "tripType"
+      ]
+    },
+    "fromEditTripDialog": {
+      "currentOrder": [
+        "title",
+        "destination",
+        "tripId",
+        "tripType",
+        "startDate",
+        "travelers",
+        "totalCost",
+        "included",
+        "excluded",
+        "notes",
+        "quotes"
+      ],
+      "newOrder_step4": [
+        "summary (readOnly)",
+        "included",
+        "excluded",
+        "notes",
+        "tripId (optional auto-gen)",
+        "quotes"
+      ],
+      "movedToStep2": [
+        "hotelId (per day)",
+        "selectedRoomType (per day)",
+        "selectedMealPlan (per day)"
+      ],
+      "movedToStep3": [
+        "vehicleId (per day)",
+        "selectedVehicle (per day)",
+        "driver info",
+        "pickup/drop points"
+      ]
+    }
+  },
+
+  "componentMapping": {
+    "newComponent": "frontend/components/itinerary/create-itinerary-wizard.tsx",
+    "replaces": "frontend/app/(protected)/leads/[id]/components/dialogs/create-itinerary-dialog.tsx",
+    "newHooks": [
+      "frontend/hooks/use-itinerary-prefill.ts",
+      "frontend/hooks/use-hotel-availability.ts"
+    ],
+    "modifiedFiles": [
+      "frontend/app/(protected)/leads/[id]/page.tsx (swap CreateItineraryDialog for wizard)",
+      "frontend/app/(protected)/leads/[id]/components/lead-itineraries-tab.tsx (if it uses CreateItineraryDialog)"
+    ],
+    "preservedFiles": [
+      "frontend/app/(protected)/itineraries/[id]/page.tsx",
+      "frontend/app/(protected)/itineraries/[id]/components/edit-trip-dialog.tsx",
+      "frontend/app/(protected)/itineraries/[id]/components/day-card.tsx",
+      "frontend/app/(protected)/itineraries/[id]/components/day-timeline.tsx"
+    ]
+  },
+
+  "apiContract": {
+    "unchangedEndpoint": "POST /api/itineraries (create)",
+    "unchangedEndpoint2": "PUT /api/itineraries/:id (update)",
+    "unchangedEndpoint3": "GET /api/itineraries/:id (read)",
+    "unchangedEndpoint4": "GET /api/hotels (list with filters)",
+    "unchangedEndpoint5": "GET /api/vehicles (list with filters)",
+    "newOptionalHook": "useItineraryPrefill(context) — client-side aggregation only, no new API"
+  }
+}

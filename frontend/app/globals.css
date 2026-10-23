@@ -1,0 +1,631 @@
+@import 'tailwindcss';
+
+@tailwind warnings off;
+
+@theme {
+  /*
+   * Tripoday brand: red, black and white only.
+   * One bright red (#DB0201) carries every accent; everything else is warm ink
+   * and warm neutrals so the red reads as deliberate, never loud.
+   */
+
+  /* Brand scales — every red/rose/pink/amber/orange/yellow class resolves to
+     `red-*`, every other hue to `neutral-*`, so these two scales are the
+     whole palette. */
+  --color-red-50: rgb(255 242 242);
+  --color-red-100: rgb(254 226 225);
+  --color-red-200: rgb(252 196 194);
+  --color-red-300: rgb(247 150 148);
+  --color-red-400: rgb(238 82 80);
+  --color-red-500: rgb(228 30 28);
+  --color-red-600: rgb(219 2 1);
+  --color-red-700: rgb(176 2 1);
+  --color-red-800: rgb(138 4 3);
+  --color-red-900: rgb(102 6 5);
+  --color-red-950: rgb(62 4 3);
+
+  --color-neutral-50: rgb(250 250 249);
+  --color-neutral-100: rgb(245 244 243);
+  --color-neutral-200: rgb(232 230 228);
+  --color-neutral-300: rgb(214 211 209);
+  --color-neutral-400: rgb(168 162 159);
+  --color-neutral-500: rgb(120 115 111);
+  --color-neutral-600: rgb(87 83 79);
+  --color-neutral-700: rgb(63 60 57);
+  --color-neutral-800: rgb(41 39 37);
+  --color-neutral-900: rgb(26 25 24);
+  --color-neutral-950: rgb(18 17 17);
+
+  /* Background */
+  --color-background: rgb(255 255 255);
+  --color-foreground: rgb(26 25 24);
+
+  /* Card */
+  --color-card: rgb(255 255 255);
+  --color-card-foreground: rgb(26 25 24);
+
+  /* Popover */
+  --color-popover: rgb(255 255 255);
+  --color-popover-foreground: rgb(26 25 24);
+
+  /* Primary - Brand Red */
+  --color-primary: rgb(219 2 1);
+  --color-primary-foreground: rgb(255 255 255);
+  --color-primary-hover: rgb(176 2 1);
+  --color-primary-light: rgb(255 242 242);
+
+  /* Secondary - Ink */
+  --color-secondary: rgb(26 25 24);
+  --color-secondary-foreground: rgb(255 255 255);
+
+  /* Muted */
+  --color-muted: rgb(247 246 245);
+  --color-muted-foreground: rgb(120 115 111);
+
+  /* Accent - Ink */
+  --color-accent: rgb(26 25 24);
+  --color-accent-foreground: rgb(255 255 255);
+  --color-accent-hover: rgb(63 60 57);
+
+  /* "Gold" slot kept for existing classes — now graphite */
+  --color-gold: rgb(87 83 79);
+  --color-gold-light: rgb(245 244 243);
+  --color-gold-dark: rgb(41 39 37);
+
+  /* Status Colors - Lead Pipeline (ink → graphite → red as it heats up) */
+  --color-status-new: rgb(26 25 24);
+  --color-status-contacted: rgb(87 83 79);
+  --color-status-qualified: rgb(176 2 1);
+  --color-status-proposal: rgb(63 60 57);
+  --color-status-negotiation: rgb(228 30 28);
+  --color-status-confirmed: rgb(219 2 1);
+  --color-status-lost: rgb(168 162 159);
+  --color-status-followup: rgb(120 115 111);
+
+  /* Semantic Colors */
+  --color-success: rgb(26 25 24);
+  --color-success-light: rgb(245 244 243);
+  --color-warning: rgb(176 2 1);
+  --color-warning-light: rgb(255 242 242);
+  --color-destructive: rgb(219 2 1);
+  --color-destructive-foreground: rgb(255 255 255);
+  --color-error: rgb(219 2 1);
+  --color-error-light: rgb(255 242 242);
+  --color-info: rgb(63 60 57);
+  --color-info-light: rgb(245 244 243);
+
+  /* WhatsApp Specific — brand-tinted, not WhatsApp green */
+  --color-wa-green: rgb(219 2 1);
+  --color-wa-green-dark: rgb(176 2 1);
+  --color-wa-chat-bg: rgb(245 244 243);
+  --color-wa-outbound-bubble: rgb(251 227 227);
+  --color-wa-inbound-bubble: rgb(255 255 255);
+
+  /* Borders */
+  --color-border: rgb(232 230 228);
+  --color-input: rgb(232 230 228);
+  --color-ring: rgb(219 2 1);
+
+  /* Text Colors */
+  --color-text-primary: rgb(26 25 24);
+  --color-text-secondary: rgb(120 115 111);
+  --color-text-muted: rgb(168 162 159);
+
+  /* Border radius */
+  --radius-sm: 0.375rem;
+  --radius: 0.5rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-full: 9999px;
+
+  /* Sidebar - Warm off-white (distinct from the white page) with a red active state */
+  --color-sidebar: rgb(248 246 243);
+  --color-sidebar-foreground: rgb(26 25 24);
+  --color-sidebar-primary: rgb(219 2 1);
+  --color-sidebar-primary-foreground: rgb(255 255 255);
+  --color-sidebar-accent: rgb(238 235 231);
+  --color-sidebar-accent-foreground: rgb(26 25 24);
+  --color-sidebar-border: rgb(230 226 221);
+  --color-sidebar-ring: rgb(219 2 1);
+
+  /* Shadow system — neutral, soft */
+  --shadow-brand: 0 4px 6px -1px rgb(18 17 17 / 0.06), 0 2px 4px -2px rgb(18 17 17 / 0.04);
+  --shadow-brand-lg: 0 10px 15px -3px rgb(18 17 17 / 0.07), 0 4px 6px -4px rgb(18 17 17 / 0.04);
+  --shadow-brand-xl:
+    0 20px 25px -5px rgb(18 17 17 / 0.08), 0 8px 10px -6px rgb(18 17 17 / 0.04);
+
+  /* Chart colors */
+  --color-chart-1: rgb(219 2 1);
+  --color-chart-2: rgb(26 25 24);
+  --color-chart-3: rgb(120 115 111);
+  --color-chart-4: rgb(247 150 148);
+  --color-chart-5: rgb(63 60 57);
+  --color-chart-6: rgb(168 162 159);
+
+  /* Pipeline stage colors */
+  --color-stage-fresh: rgb(26 25 24);
+  --color-stage-followup: rgb(87 83 79);
+  --color-stage-hot: rgb(219 2 1);
+  --color-stage-warm: rgb(238 82 80);
+  --color-stage-won: rgb(176 2 1);
+  --color-stage-lost: rgb(168 162 159);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  html {
+    font-family:
+      var(--font-inter),
+      'Inter',
+      system-ui,
+      -apple-system,
+      sans-serif;
+    scroll-behavior: smooth;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-size: 0.875rem;
+    line-height: 1.625;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Font sizing scale */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-poppins), 'Poppins', system-ui, sans-serif;
+    font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+  }
+
+  /* Tabular numbers for data */
+  .tabular-nums {
+    font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Custom scrollbar - thin and elegant */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-neutral-300);
+    border-radius: 3px;
+    opacity: 0.3;
+    transition: opacity 150ms ease;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-neutral-400);
+    opacity: 0.5;
+  }
+
+  /* Selection color - brand accent */
+  ::selection {
+    background-color: rgb(219 2 1 / 0.15);
+    color: var(--color-text-primary);
+  }
+
+  /* Focus styles - refined ring */
+  :focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* Remove default focus for mouse users */
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+}
+
+@layer utilities {
+  /* Brand gradients - ink into deep crimson */
+  .bg-brand-gradient {
+    background: linear-gradient(135deg, rgb(18 17 17) 0%, rgb(138 4 3) 100%);
+  }
+
+  .bg-brand-warm {
+    background: linear-gradient(135deg, rgb(219 2 1) 0%, rgb(102 6 5) 100%);
+  }
+
+  .text-brand-gradient {
+    background: linear-gradient(135deg, rgb(18 17 17) 0%, rgb(138 4 3) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Shadow system */
+  .shadow-brand {
+    box-shadow:
+      0 4px 6px -1px rgb(18 17 17 / 0.06),
+      0 2px 4px -2px rgb(18 17 17 / 0.04);
+  }
+
+  .shadow-brand-lg {
+    box-shadow:
+      0 10px 15px -3px rgb(18 17 17 / 0.07),
+      0 4px 6px -4px rgb(18 17 17 / 0.04);
+  }
+
+  .shadow-brand-xl {
+    box-shadow:
+      0 20px 25px -5px rgb(18 17 17 / 0.07),
+      0 8px 10px -6px rgb(18 17 17 / 0.04);
+  }
+
+  /* Status badge backgrounds */
+  .bg-status-new {
+    background-color: rgb(26 25 24 / 0.06);
+    color: var(--color-status-new);
+  }
+
+  .bg-status-contacted {
+    background-color: rgb(87 83 79 / 0.08);
+    color: var(--color-status-contacted);
+  }
+
+  .bg-status-qualified {
+    background-color: rgb(116 22 18 / 0.08);
+    color: var(--color-status-qualified);
+  }
+
+  .bg-status-proposal {
+    background-color: rgb(63 60 57 / 0.08);
+    color: var(--color-status-proposal);
+  }
+
+  .bg-status-negotiation {
+    background-color: rgb(160 40 33 / 0.08);
+    color: var(--color-status-negotiation);
+  }
+
+  .bg-status-confirmed {
+    background-color: rgb(219 2 1 / 0.1);
+    color: var(--color-status-confirmed);
+  }
+
+  .bg-status-lost {
+    background-color: rgb(168 162 159 / 0.12);
+    color: var(--color-status-lost);
+  }
+
+  /* WhatsApp bubble backgrounds */
+  .bg-wa-outbound {
+    background-color: var(--color-wa-outbound-bubble);
+  }
+
+  .bg-wa-inbound {
+    background-color: var(--color-wa-inbound-bubble);
+  }
+
+  .bg-wa-chat {
+    background-color: var(--color-wa-chat-bg);
+  }
+
+  /* Animation utilities */
+  .animate-in {
+    animation: animateIn 200ms ease-out;
+  }
+
+  @keyframes animateIn {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-slide-in-right {
+    animation: slideInRight 200ms ease-out;
+  }
+
+  @keyframes slideInRight {
+    from {
+      opacity: 0;
+      transform: translateX(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .animate-slide-in-bottom {
+    animation: slideInBottom 200ms ease-out;
+  }
+
+  @keyframes slideInBottom {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 200ms ease-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 200ms ease-out;
+  }
+
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  /* Pulse animation for skeletons */
+  .animate-pulse-skeleton {
+    animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  /* Transition utilities */
+  .transition-smooth {
+    transition: all 150ms ease;
+  }
+
+  .transition-slow {
+    transition: all 200ms ease;
+  }
+
+  /* Scale on hover */
+  .hover-scale {
+    transition:
+      transform 150ms ease,
+      box-shadow 150ms ease;
+  }
+
+  .hover-scale:hover {
+    transform: scale(1.01);
+  }
+
+  .active-scale:active {
+    transform: scale(0.99);
+  }
+
+  /* Line clamp utilities */
+  .line-clamp-1 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+  }
+
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .line-clamp-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+
+  /* Text utilities */
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Gradient text */
+  .text-gradient {
+    background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-primary) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Typography scale */
+  .text-display {
+    font-size: 3rem;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    font-weight: 700;
+  }
+
+  .text-heading {
+    font-size: 1.875rem;
+    line-height: 1.2;
+    letter-spacing: -0.015em;
+    font-weight: 600;
+  }
+
+  .text-title {
+    font-size: 1.25rem;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+    font-weight: 600;
+  }
+
+  .text-body {
+    font-size: 0.875rem;
+    line-height: 1.625;
+    font-weight: 400;
+  }
+
+  .text-caption {
+    font-size: 0.75rem;
+    line-height: 1.5;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+  }
+
+  /* Number animations */
+  .animate-count {
+    animation: countUp 600ms ease-out forwards;
+  }
+
+  @keyframes countUp {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Stagger children animation */
+  .stagger-children > * {
+    animation: staggerFadeIn 300ms ease-out forwards;
+    opacity: 0;
+  }
+
+  .stagger-children > *:nth-child(1) {
+    animation-delay: 0ms;
+  }
+  .stagger-children > *:nth-child(2) {
+    animation-delay: 50ms;
+  }
+  .stagger-children > *:nth-child(3) {
+    animation-delay: 100ms;
+  }
+  .stagger-children > *:nth-child(4) {
+    animation-delay: 150ms;
+  }
+  .stagger-children > *:nth-child(5) {
+    animation-delay: 200ms;
+  }
+  .stagger-children > *:nth-child(6) {
+    animation-delay: 250ms;
+  }
+  .stagger-children > *:nth-child(7) {
+    animation-delay: 300ms;
+  }
+  .stagger-children > *:nth-child(8) {
+    animation-delay: 350ms;
+  }
+  .stagger-children > *:nth-child(9) {
+    animation-delay: 400ms;
+  }
+  .stagger-children > *:nth-child(10) {
+    animation-delay: 450ms;
+  }
+
+  @keyframes staggerFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Skeleton shimmer effect */
+  .animate-shimmer {
+    background: linear-gradient(
+      90deg,
+      var(--color-muted) 0%,
+      var(--color-muted-foreground) 20%,
+      var(--color-muted) 40%,
+      var(--color-muted) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+
+  /* Hover lift effect */
+  .hover-lift {
+    transition:
+      transform 200ms ease,
+      box-shadow 200ms ease;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-2px);
+  }
+
+  /* Glass effect */
+  .glass {
+    background: rgb(255 255 255 / 0.8);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  /* Subtle border */
+  .border-subtle {
+    border-color: var(--color-border);
+    opacity: 0.6;
+  }
+
+  /* Number stat styling */
+  .stat-number {
+    font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  /* Improved form focus */
+  .input-focus-ring:focus {
+    box-shadow: 0 0 0 3px rgb(219 2 1 / 0.15);
+    border-color: var(--color-accent);
+  }
+
+  /* Progress bar animation */
+  .animate-progress {
+    animation: progressFill 1s ease-out forwards;
+  }
+
+  @keyframes progressFill {
+    from {
+      width: 0;
+    }
+  }
+}

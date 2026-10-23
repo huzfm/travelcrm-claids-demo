@@ -1,0 +1,1319 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  MANAGER
+  STAFF
+  /// Central reservations desk. Scoped like STAFF (src/config/roles.js); sees
+  /// every branch's itineraries, trips and payments through its default
+  /// permissions itineraries.view_all and trips.view_all.
+  RESERVATION_MANAGER
+}
+
+enum Currency {
+  INR
+  MUR
+  MYR
+  USD
+  EUR
+  THB
+}
+
+enum LeadSource {
+  WEBSITE
+  WHATSAPP
+  WALKIN
+  SOCIAL
+  BULK_IMPORT
+  META_ADS
+  GOOGLE_ADS
+  // Legacy: ad leads from before Meta / Google were split. New leads never use it;
+  // `pnpm db:backfill-ad-lead-sources` moves old rows onto META_ADS / GOOGLE_ADS.
+  AD_CAMPAIGN
+}
+
+enum AdPlatform {
+  GOOGLE
+  META
+}
+
+enum LeadStatus {
+  NEW
+  FRESH
+  FOLLOWUP
+  HOT
+  WARM
+  NOT_ANSWERING
+  WON
+  NOT_INTERESTED
+  JUNK
+  SENT_VOICEMAIL
+  CALL_DECLINED
+  CALL_BACK_SCHEDULED
+  CONNECTED
+  CLOSED
+  QUOTE_SENT
+}
+
+enum ActivityType {
+  NOTE
+  CALL
+  WHATSAPP
+  EMAIL
+  STATUS_CHANGE
+  ASSIGNMENT
+  TRANSFER
+  SENT_VOICEMAIL
+  CALL_DECLINED
+  CALL_BACK_SCHEDULED
+  CALL_CONNECTED
+  VISIT
+  MEETING
+}
+
+enum FollowUpStatus {
+  PENDING
+  DONE
+  OVERDUE
+  RESCHEDULED
+  CANCELLED
+}
+
+enum FollowUpType {
+  CALL
+  MEETING
+  VISIT
+  EMAIL
+  WHATSAPP
+  VIDEO_CALL
+  OTHER
+}
+
+enum FollowUpOutcome {
+  CONNECTED
+  VOICEMAIL
+  CALL_DECLINED
+  NO_ANSWER
+  SCHEDULED_CALLBACK
+  NOT_INTERESTED
+  WON
+  LOST
+}
+
+enum MessageDirection {
+  INBOUND
+  OUTBOUND
+}
+
+enum MessageType {
+  TEXT
+  IMAGE
+  DOCUMENT
+  AUDIO
+  TEMPLATE
+}
+
+model Branch {
+  id             String  @id @default(cuid())
+  name           String
+  country        String
+  timezone       String
+  isMain         Boolean @default(false) @map("is_main") // Marks the main branch for pricing logic
+  whatsappNumber String? @unique
+  isActive       Boolean @default(true)
+
+  // Branch configuration
+  currency      Currency @default(INR) @map("currency")
+  email         String?  @map("email")
+  phone         String?  @map("phone")
+  address       String?  @map("address")
+  logoUrl       String?  @map("logo_url")
+  companyName   String?  @map("company_name")
+  contactPerson String?  @map("contact_person")
+  instagram     String?  @map("instagram")
+
+  // Working hours stored as JSON array
+  // Example: [{"day": "monday", "open": "09:00", "close": "18:00", "closed": false}]
+  workingHours Json @default("[]") @map("working_hours")
+
+  // Evolution API WhatsApp Configuration
+  whatsappInstanceName String? @map("whatsapp_instance_name") // e.g. "azees-srinagar"
+  whatsappConnected    Boolean @default(false) @map("whatsapp_connected")
+  whatsappPhoneNumber  String? @map("whatsapp_phone_number") // Connected WhatsApp number
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  users              User[]
+  leads              Lead[]
+  itineraries        Itinerary[]
+  itineraryDrafts    ItineraryDraft[]
+  whatsappMessages   WhatsAppMessage[]
+  whatsappContacts   WhatsAppContact[]
+  whatsappTemplates  WhatsAppTemplate[]
+  assignmentRules    AssignmentRule[]
+  itineraryTemplates ItineraryTemplate[]
+  auditLogs          AuditLog[]
+  leadTags           LeadTag[]
+  adCampaigns        AdCampaign[]
+  metaConnection     MetaConnection?
+  metaPages          MetaPage[]
+  tripPayments       TripPayment[]
+  destinations       Destination[]
+  paymentSchedules   PaymentSchedule[]
+  supplierPayables   SupplierPayable[]
+
+  @@index([isActive])
+  @@index([whatsappInstanceName])
+  @@map("branches")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  branchId     String   @map("branch_id")
+  name         String
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  role         UserRole @default(STAFF)
+
+  // Module-level feature keys this user may reach (see src/config/permissions.js).
+  // ADMIN bypasses these checks; for everyone else an empty array grants nothing.
+  permissions String[] @default([])
+
+  isActive         Boolean   @default(true) @map("is_active")
+  refreshToken     String?   @map("refresh_token")
+  resetToken       String?   @map("reset_token")
+  resetCode        String?   @map("reset_code")
+  resetTokenExpiry DateTime? @map("reset_token_expiry")
+  phone            String    @unique @map("phone")
+
+  // Profile photo, uploaded to Cloudinary (travel-crm/avatars). Null means the
+  // UI falls back to the user's initials.
+  avatarUrl String? @map("avatar_url")
+
+  // Evolution API WhatsApp Instance for this user
+  evolutionInstanceName  String?   @map("evolution_instance_name")
+  evolutionInstanceToken String?   @map("evolution_instance_token") @db.Text
+  evolutionPhoneNumber   String?   @map("evolution_phone_number")
+  evolutionStatus        String?   @default("disconnected") @map("evolution_status")
+  evolutionQrCode        String?   @map("evolution_qr_code") @db.Text
+  evolutionCreatedAt     DateTime? @map("evolution_created_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  branch            Branch              @relation(fields: [branchId], references: [id])
+  leadsAssigned     Lead[]              @relation("AssignedLeads")
+  leadsCreated      Lead[]              @relation("CreatedLeads")
+  activities        LeadActivity[]
+  assignedFollowUps FollowUp[]          @relation("AssignedFollowUps")
+  createdFollowUps  FollowUp[]          @relation("CreatedFollowUps")
+  itineraries       Itinerary[]
+  itineraryDrafts   ItineraryDraft[]
+  whatsappMessages  WhatsAppMessage[]
+  whatsappContacts  WhatsAppContact[]
+  assignmentRules   AssignmentRule[]
+  templatesCreated  ItineraryTemplate[]
+  auditLogs         AuditLog[]
+  tripPayments      TripPayment[]
+  destinations      Destination[]
+  paymentSchedules  PaymentSchedule[]   @relation("PaymentScheduleCreator")
+  supplierPayables  SupplierPayable[]   @relation("SupplierPayableCreator")
+
+  @@index([branchId])
+  @@index([isActive])
+  @@index([role])
+  @@index([evolutionInstanceName])
+  @@index([evolutionStatus])
+  @@map("users")
+}
+
+model Lead {
+  id       String  @id @default(cuid())
+  branchId String  @map("branch_id")
+  name     String
+  phone    String
+  email    String?
+
+  source LeadSource @default(WEBSITE)
+  status LeadStatus @default(FRESH)
+
+  // Travel details
+  destination    String?   @map("destination")
+  travelDateFrom DateTime? @map("travel_date_from")
+  travelDateTo   DateTime? @map("travel_date_to")
+  travelMonth    String?   @map("travel_month") // e.g. "2026-04"
+  numberOfPax    String    @default("1") @map("number_of_pax") // e.g. "2 adults", "1 adult 2 kids"
+  budget         Float?    @map("budget")
+  tripType       String?   @map("trip_type") // DOMESTIC, INTERNATIONAL
+  hotelCategory  String?   @map("hotel_category") // BUDGET, STANDARD, PREMIUM, LUXURY
+  pickupPoint    String?   @map("pickup_point")
+  childrenCount  Int       @default(0) @map("children_count")
+
+  // Lead scoring
+  score         Int     @default(0) @map("score")
+  qualification String? @map("qualification") // HOT, WARM, COLD
+  priority      String? @map("priority") // LOW, MEDIUM, HIGH, URGENT
+
+  assignedTo  String? @map("assigned_to")
+  createdBy   String  @map("created_by")
+  duplicateOf String? @map("duplicate_of")
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  branch   Branch @relation(fields: [branchId], references: [id])
+  assignee User?  @relation("AssignedLeads", fields: [assignedTo], references: [id])
+  creator  User   @relation("CreatedLeads", fields: [createdBy], references: [id])
+
+  duplicateLead Lead?  @relation("LeadDuplicates", fields: [duplicateOf], references: [id])
+  duplicates    Lead[] @relation("LeadDuplicates")
+
+  activities       LeadActivity[]
+  followUps        FollowUp[]
+  itineraries      Itinerary[]
+  itineraryDrafts  ItineraryDraft[]
+  whatsappMessages WhatsAppMessage[]
+  whatsappContact  WhatsAppContact?
+  leadTags         LeadToTag[]
+  adCampaignLeads  AdCampaignLead[]
+
+  @@index([status])
+  @@index([branchId])
+  @@index([assignedTo])
+  @@index([createdBy])
+  @@index([createdAt])
+  @@index([deletedAt])
+  @@index([status, createdAt])
+  @@index([branchId, status])
+  @@map("leads")
+}
+
+model LeadActivity {
+  id     String @id @default(cuid())
+  leadId String @map("lead_id")
+  userId String @map("user_id")
+
+  type        ActivityType
+  description String
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  lead Lead @relation(fields: [leadId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([leadId])
+  @@index([userId])
+  @@index([createdAt])
+  @@index([leadId, createdAt])
+  @@map("lead_activities")
+}
+
+model FollowUp {
+  id         String @id @default(cuid())
+  leadId     String @map("lead_id")
+  assignedTo String @map("assigned_to")
+  createdBy  String @map("created_by")
+
+  type        FollowUpType @default(CALL) @map("type")
+  scheduledAt DateTime     @map("scheduled_at")
+  completedAt DateTime?    @map("completed_at")
+
+  status   FollowUpStatus   @default(PENDING)
+  outcome  FollowUpOutcome? @map("outcome")
+  notes    String?
+  feedback String?          @map("feedback")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  lead Lead @relation(fields: [leadId], references: [id])
+
+  assignee User @relation("AssignedFollowUps", fields: [assignedTo], references: [id], map: "follow_ups_assignee_fkey")
+  creator  User @relation("CreatedFollowUps", fields: [createdBy], references: [id], map: "follow_ups_creator_fkey")
+
+  @@index([leadId])
+  @@index([assignedTo])
+  @@index([status])
+  @@index([scheduledAt])
+  @@index([status, scheduledAt])
+  @@index([assignedTo, status])
+  @@map("follow_ups")
+}
+
+// Singleton row (fixed id) holding app-wide PDF settings — the cover image and
+// the footer contact line, both shared by every itinerary's PDF rather than
+// set per itinerary. Set from the sidebar's "Edit PDF" page.
+model AppSetting {
+  id                  String  @id @default("singleton")
+  itineraryCoverImage String? @map("itinerary_cover_image")
+
+  // Footer shown on every page except the cover — an ordered list of plain
+  // text items (phone, email, website, or anything else) joined by "|" in
+  // the PDF. Stored as JSON, like customLastPage below, because the admin
+  // can add or remove items freely instead of being limited to three fixed
+  // fields. footerPhone/footerEmail/footerWebsite are deprecated but kept
+  // (not dropped) so existing values aren't lost; toResponse() falls back to
+  // them only when footerItems has never been set.
+  footerItems     Json?   @map("footer_items")
+  footerPhone     String? @default("+91 8491064038") @map("footer_phone")
+  footerEmail     String? @default("Info@azeestravels.com") @map("footer_email")
+  footerWebsite   String? @default("www.azeestravels.com") @map("footer_website")
+  // Colors of the "rest of pages" footer bar, as hex strings (#RRGGBB).
+  footerBgColor   String? @default("#B3261E") @map("footer_bg_color")
+  footerTextColor String? @default("#FFFFFF") @map("footer_text_color")
+
+  // Cover page footer — a two-bar banner (company tagline + registration
+  // details), structurally different from the "rest of pages" footer above.
+  coverFooterCompanyName      String? @default("Azees Travels") @map("cover_footer_company_name")
+  coverFooterTagline          String? @default("Trusted & Registered with the Government of India") @map("cover_footer_tagline")
+  coverFooterCin              String? @map("cover_footer_cin")
+  coverFooterGst              String? @map("cover_footer_gst")
+  coverFooterPhone            String? @default("+91 8491064038") @map("cover_footer_phone")
+  // Cover footer colors (hex): the top banner bar and the details bar below it.
+  coverFooterBannerColor      String? @default("#1A1A1A") @map("cover_footer_banner_color")
+  coverFooterBannerTextColor  String? @default("#FFFFFF") @map("cover_footer_banner_text_color")
+  coverFooterDetailsColor     String? @default("#F7F7F7") @map("cover_footer_details_color")
+  coverFooterDetailsTextColor String? @default("#1A1A1A") @map("cover_footer_details_text_color")
+
+  // A free-form final page — an ordered list of heading/text/image blocks the
+  // admin builds in the "Edit PDF" settings page. Stored as JSON (unlike the
+  // fixed fields above) because the block list's shape and length are
+  // arbitrary. Rendered as the very last page of every itinerary PDF when
+  // enabled and non-empty.
+  customLastPage Json? @map("custom_last_page")
+
+  // Library for the quote PDF's Terms section:
+  // { sections: [{ title, points: [{ text, isDefault }] }], address }.
+  // Agents pick points from it per itinerary (default ones pre-selected); the
+  // pick is saved in Itinerary.terms. JSON because sections and points are
+  // added/removed freely. Null means the bundled defaults
+  // (frontend quote-layout/defaults.ts).
+  pdfTerms Json? @map("pdf_terms")
+
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("app_settings")
+}
+
+model Itinerary {
+  id       String  @id @default(cuid())
+  leadId   String? @map("lead_id")
+  branchId String  @map("branch_id")
+
+  title       String
+  clientName  String? @map("client_name")
+  // "Mr" | "Ms" | "Mrs" — shown before clientName on the PDF cover page.
+  salutation  String? @default("Mr") @map("salutation")
+  destination String  @map("destination")
+
+  templateId       String? @map("template_id")
+  // Which template this itinerary was built from. Separate from `templateId`
+  // because that is a foreign key to ItineraryTemplate, while a template can
+  // also be an Itinerary with isTemplate = true — so this holds either id and
+  // carries no relation. Read by the template usage counts.
+  sourceTemplateId String? @map("source_template_id")
+  daysJson         Json    @map("days_json")
+
+  version   Int     @default(1)
+  pdfPath   String? @map("pdf_path")
+  sharedVia String? @map("shared_via")
+
+  createdBy String @map("created_by")
+
+  // Extended fields
+  coverImage     String?   @map("cover_image")
+  startDate      DateTime? @map("start_date")
+  endDate        DateTime? @map("end_date")
+  tripType       String?   @map("trip_type")
+  totalTravelers Int?      @map("total_travelers")
+  adults         Int?      @map("adults")
+  children       Int?      @map("children")
+  // One age per child, same length as `children`. Child pricing reads it.
+  childrenAges   Json?     @map("children_ages")
+  budget         String?
+  currency       String    @default("INR") @map("currency") // Currency at time of creation
+  totalCost      Float?    @map("total_cost")
+  notes          String?
+  terms          String? // Custom terms & conditions
+  included       String? // JSON array as string
+  excluded       String? // JSON array as string
+
+  // Payment fields
+  advanceAmount Float?  @map("advance_amount")
+  advancePaid   Boolean @default(false) @map("advance_paid")
+  bankDetails   String? @map("bank_details") // JSON object as string
+
+  // Multi-quote support - JSON array of quote options
+  quotes        String? // JSON array: [{label, totalCost, breakdown, items}]
+  selectedQuote Int?    @map("selected_quote") // Index of selected quote (0-based)
+
+  // Multi-option support - array of independent package options
+  // Each option has its own hotels, vehicles, activities, and pricing
+  options        String? // JSON array: [{name, totalCost, breakdown, hotels, vehicles, activities}]
+  selectedOption Int?    @map("selected_option") // Index of selected option (0-based)
+
+  // Trip-level flight segments (outbound / return / internal hops). Each entry is
+  // either typed by the agent or auto-filled from a flight-number lookup and then
+  // edited, so every field stays free-form. Fares here are informational: they
+  // show on the itinerary and the PDF but are NOT part of the package pricing
+  // engine, which prices hotels, vehicles and activities per day.
+  flightsJson Json? @map("flights_json") // JSON array of FlightSegment
+
+  // Trip ID - unique identifier for the trip
+  tripId String? @unique @map("trip_id")
+
+  // Trip lifecycle status (independent of date-derived UPCOMING/ONGOING/COMPLETED)
+  status TripStatus @default(DRAFT) @map("status")
+
+  // Template flag - marks itinerary as reusable template
+  isTemplate   Boolean @default(false) @map("is_template")
+  templateName String? @map("template_name") // Custom name when saved as template
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  lead             Lead?              @relation(fields: [leadId], references: [id])
+  branch           Branch             @relation(fields: [branchId], references: [id])
+  template         ItineraryTemplate? @relation(fields: [templateId], references: [id])
+  creator          User               @relation(fields: [createdBy], references: [id])
+  payments         TripPayment[]
+  paymentSchedules PaymentSchedule[]
+  supplierPayables SupplierPayable[]
+
+  @@index([leadId])
+  @@index([branchId])
+  @@index([templateId])
+  @@index([sourceTemplateId])
+  @@index([createdBy])
+  @@index([createdAt])
+  @@index([leadId, createdAt])
+  @@index([isTemplate])
+  @@index([status])
+  @@index([startDate])
+  @@index([endDate])
+  @@index([tripId])
+  @@map("itineraries")
+}
+
+// An itinerary someone started in the builder and has not saved yet — shown
+// as "Incomplete" in the list. Kept apart from Itinerary so half-built work
+// never reaches trips, the dashboard, search or revenue. The id is generated
+// by the browser so autosaves are idempotent upserts. Saving the finished
+// itinerary deletes the row.
+model ItineraryDraft {
+  id        String  @id
+  branchId  String  @map("branch_id")
+  leadId    String? @map("lead_id")
+  createdBy String  @map("created_by")
+
+  // Copied out of `data` so the list can show them without parsing it.
+  title       String
+  clientName  String? @map("client_name")
+  destination String?
+  // Wizard step the agent was last on (1-10); Continue reopens it.
+  step        Int     @default(1)
+
+  // The builder's full state, exactly as the wizard snapshots it.
+  data Json
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  branch  Branch @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  lead    Lead?  @relation(fields: [leadId], references: [id], onDelete: SetNull)
+  creator User   @relation(fields: [createdBy], references: [id])
+
+  @@index([branchId])
+  @@index([leadId])
+  @@index([createdBy])
+  @@index([updatedAt])
+  @@map("itinerary_drafts")
+}
+
+model ItineraryTemplate {
+  id       String  @id @default(cuid())
+  branchId String? @map("branch_id")
+
+  name        String
+  destination String @map("destination")
+  daysJson    Json   @map("days_json")
+
+  isGlobal  Boolean @default(false) @map("is_global")
+  createdBy String  @map("created_by")
+
+  createdAt      DateTime  @default(now()) @map("created_at")
+  totalTravelers Int?      @map("total_travelers")
+  startDate      DateTime? @map("start_date")
+  endDate        DateTime? @map("end_date")
+  tripType       String?   @map("trip_type")
+
+  branch      Branch?     @relation(fields: [branchId], references: [id])
+  creator     User        @relation(fields: [createdBy], references: [id])
+  itineraries Itinerary[]
+
+  @@index([branchId])
+  @@index([createdBy])
+  @@index([createdAt])
+  @@map("itinerary_templates")
+}
+
+model WhatsAppMessage {
+  id        String  @id @default(cuid())
+  branchId  String  @map("branch_id")
+  leadId    String? @map("lead_id")
+  userId    String? @map("user_id")
+  contactId String? @map("contact_id")
+
+  remoteJid     String  @map("remote_jid")
+  contactName   String? @map("contact_name")
+  contactNumber String  @map("contact_number")
+
+  direction   MessageDirection @default(INBOUND)
+  messageType MessageType      @default(TEXT) @map("message_type")
+
+  textContent   String? @map("text_content")
+  caption       String?
+  mediaUrl      String? @map("media_url")
+  mediaBase64   String? @map("media_base64")
+  mediaMimeType String? @map("media_mime_type")
+  fileName      String? @map("file_name")
+
+  waMessageId     String? @unique @map("wa_message_id")
+  quotedMessageId String? @map("quoted_message_id")
+  isForwarded     Boolean @default(false) @map("is_forwarded")
+
+  status String   @default("sent")
+  sentAt DateTime @default(now()) @map("timestamp")
+
+  branch  Branch           @relation(fields: [branchId], references: [id])
+  lead    Lead?            @relation(fields: [leadId], references: [id])
+  user    User?            @relation(fields: [userId], references: [id], map: "whatsapp_messages_user_fkey")
+  contact WhatsAppContact? @relation(fields: [contactId], references: [id], map: "whatsapp_messages_contact_fkey")
+
+  @@index([branchId, remoteJid, sentAt])
+  @@index([leadId, sentAt])
+  @@index([branchId, sentAt])
+  @@index([contactNumber])
+  @@map("whatsapp_messages")
+}
+
+model WhatsAppContact {
+  id       String  @id @default(cuid())
+  userId   String? @map("user_id") // Optional for migration - new contacts must have userId
+  branchId String  @map("branch_id")
+  leadId   String? @unique @map("lead_id")
+
+  remoteJid     String  @map("remote_jid")
+  contactNumber String  @map("contact_number")
+  contactName   String? @map("contact_name")
+  profilePicUrl String? @map("profile_pic_url")
+
+  lastMessageAt      DateTime? @map("last_message_at")
+  lastMessagePreview String?   @map("last_message_preview")
+  unreadCount        Int       @default(0) @map("unread_count")
+  isActive           Boolean   @default(true) @map("is_active")
+  isArchived         Boolean   @default(false) @map("is_archived")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user     User?             @relation(fields: [userId], references: [id])
+  branch   Branch            @relation(fields: [branchId], references: [id])
+  lead     Lead?             @relation(fields: [leadId], references: [id])
+  messages WhatsAppMessage[]
+
+  @@unique([userId, remoteJid])
+  @@index([userId, lastMessageAt])
+  @@index([branchId, lastMessageAt])
+  @@map("whatsapp_contacts")
+}
+
+model WhatsAppTemplate {
+  id        String   @id @default(cuid())
+  branchId  String   @map("branch_id")
+  name      String
+  category  String   @default("General")
+  bodyText  String   @map("body_text")
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  branch Branch @relation(fields: [branchId], references: [id])
+
+  @@index([branchId])
+  @@index([category])
+  @@map("whatsapp_templates")
+}
+
+model AssignmentRule {
+  id       String @id @default(cuid())
+  branchId String @map("branch_id")
+  userId   String @map("user_id")
+
+  source   LeadSource
+  priority Int        @default(1)
+  isActive Boolean    @default(true) @map("is_active")
+
+  // Round-robin cursor: among rules sharing the same (branch, source, priority),
+  // the one assigned least recently gets the next lead.
+  lastAssignedAt DateTime? @map("last_assigned_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  branch Branch @relation(fields: [branchId], references: [id])
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@index([branchId])
+  @@index([source])
+  @@index([isActive])
+  @@index([branchId, source, isActive])
+  @@map("assignment_rules")
+}
+
+// ============================================
+// Audit Log - Track all system changes
+// ============================================
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  LOGIN
+  LOGOUT
+  EXPORT
+  IMPORT
+  MERGE
+}
+
+enum AuditEntity {
+  LEAD
+  FOLLOWUP
+  USER
+  BRANCH
+  ITINERARY
+  WHATSAPP
+  HOTEL
+  VEHICLE
+  DESTINATION
+}
+
+model AuditLog {
+  id       String  @id @default(cuid())
+  branchId String? @map("branch_id")
+  userId   String  @map("user_id")
+
+  action   AuditAction
+  entity   AuditEntity
+  entityId String      @map("entity_id")
+
+  oldData     Json?   @map("old_data")
+  newData     Json?   @map("new_data")
+  description String?
+
+  ipAddress String? @map("ip_address")
+  userAgent String? @map("user_agent")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  branch Branch? @relation(fields: [branchId], references: [id])
+  user   User    @relation(fields: [userId], references: [id])
+
+  @@index([entity])
+  @@index([entityId])
+  @@index([userId])
+  @@index([branchId])
+  @@index([createdAt])
+  @@index([action])
+  @@map("audit_logs")
+}
+
+// ============================================
+// Lead Tags - For lead segmentation
+// ============================================
+model LeadTag {
+  id        String   @id @default(cuid())
+  branchId  String   @map("branch_id")
+  name      String
+  color     String   @default("#6366f1")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  branch    Branch      @relation(fields: [branchId], references: [id])
+  LeadToTag LeadToTag[]
+
+  @@unique([branchId, name])
+  @@index([branchId])
+  @@map("lead_tags")
+}
+
+// Lead to Tags junction table
+model LeadToTag {
+  id        String   @id @default(cuid())
+  leadId    String   @map("lead_id")
+  tagId     String   @map("tag_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  lead Lead    @relation(fields: [leadId], references: [id])
+  tag  LeadTag @relation(fields: [tagId], references: [id])
+
+  @@unique([leadId, tagId])
+  @@index([leadId])
+  @@index([tagId])
+  @@map("lead_to_tags")
+}
+
+// ============================================
+// Ad Campaigns - Track advertising campaigns
+// ============================================
+model AdCampaign {
+  id       String     @id @default(cuid())
+  branchId String     @map("branch_id")
+  name     String
+  platform AdPlatform @default(GOOGLE)
+  status   String     @default("ACTIVE") // ACTIVE, PAUSED, ENDED
+
+  // Google Ads integration
+  googleAccountId    String? @map("google_account_id")
+  googleCampaignId   String? @map("google_campaign_id")
+  googleRefreshToken String? @map("google_refresh_token")
+
+  // Meta Ads integration
+  metaAccountId   String? @map("meta_account_id")
+  metaAdSetId     String? @map("meta_ad_set_id")
+  metaAccessToken String? @map("meta_access_token")
+
+  budget    Float     @default(0)
+  spent     Float     @default(0)
+  startDate DateTime  @map("start_date")
+  endDate   DateTime? @map("end_date")
+  notes     String?
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  branch Branch           @relation(fields: [branchId], references: [id])
+  leads  AdCampaignLead[]
+
+  @@index([branchId])
+  @@index([status])
+  @@index([platform])
+  @@map("ad_campaigns")
+}
+
+// ============================================
+// Meta connection - one per branch, created when an admin clicks
+// "Connect Meta" and logs in. Replaces the old single META_PAGE_ACCESS_TOKEN
+// env var, so every customer brings their own Facebook account.
+// ============================================
+model MetaConnection {
+  id           String    @id @default(cuid())
+  branchId     String    @unique @map("branch_id")
+  metaUserId   String    @map("meta_user_id")
+  metaUserName String?   @map("meta_user_name")
+  // Long-lived (~60 day) user token. Used for Insights; page tokens below
+  // are derived from it and do not expire.
+  accessToken  String    @map("access_token")
+  expiresAt    DateTime? @map("expires_at")
+  scopes       String[]  @default([])
+  // [{ id: "act_123", accountId: "123", name, currency, status }]
+  adAccounts   Json      @default("[]") @map("ad_accounts")
+  connectedBy  String?   @map("connected_by")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  branch Branch     @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  pages  MetaPage[]
+
+  @@map("meta_connections")
+}
+
+// A Facebook Page the connected user manages. Leadgen webhooks arrive keyed by
+// page_id, so this is how an incoming lead finds its branch and its token.
+model MetaPage {
+  id             String   @id @default(cuid())
+  pageId         String   @unique @map("page_id")
+  connectionId   String   @map("connection_id")
+  branchId       String   @map("branch_id")
+  name           String
+  accessToken    String   @map("access_token")
+  subscribed     Boolean  @default(false)
+  subscribeError String?  @map("subscribe_error")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  connection MetaConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+  branch     Branch         @relation(fields: [branchId], references: [id], onDelete: Cascade)
+
+  @@index([branchId])
+  @@map("meta_pages")
+}
+
+// Ad Campaign to Lead junction table
+model AdCampaignLead {
+  id         String   @id @default(cuid())
+  leadId     String   @map("lead_id")
+  campaignId String   @map("campaign_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  lead     Lead       @relation(fields: [leadId], references: [id])
+  campaign AdCampaign @relation(fields: [campaignId], references: [id])
+
+  @@unique([leadId, campaignId])
+  @@index([leadId])
+  @@index([campaignId])
+  @@map("ad_campaign_leads")
+}
+
+// ============================================
+// OTP Model - For password reset OTP storage
+// ============================================
+model OTP {
+  id              String   @id @default(cuid())
+  phone           String   @map("phone")
+  otpHash         String   @map("otp_hash")
+  otpExpiry       DateTime @map("otp_expiry")
+  otpVerified     Boolean  @default(false) @map("otp_verified")
+  attempts        Int      @default(0) @map("attempts")
+  sentViaInstance String   @map("sent_via_instance") // Track which instance sent OTP
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([phone]) // One active OTP per phone at a time
+  @@index([phone])
+  @@index([otpExpiry])
+  @@map("otps")
+}
+
+// ============================================
+// Pending Login - For 2FA OTP verification during login
+// ============================================
+model PendingLogin {
+  id          String   @id @default(cuid())
+  userId      String   @map("user_id")
+  email       String   @map("email")
+  phone       String   @map("phone")
+  otpHash     String   @map("otp_hash")
+  expiresAt   DateTime @map("expires_at")
+  attempts    Int      @default(0) @map("attempts")
+  maxAttempts Int      @default(3) @map("max_attempts")
+  used        Boolean  @default(false) @map("used")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@index([email])
+  @@index([expiresAt])
+  @@index([used])
+  @@map("pending_logins")
+}
+
+// ============================================
+// Destination Database - Master destination/place data for itineraries
+// ============================================
+enum PlaceType {
+  MOUNTAIN
+  BEACH
+  CITY
+  DESERT
+  FOREST
+  HISTORICAL
+  ADVENTURE
+  RELIGIOUS
+  OTHER
+}
+
+model Destination {
+  id   String @id @default(cuid())
+  name String // e.g., "Kashmir", "Gulmarg", "Dal Lake"
+
+  // A master destination carries only name, country and placeType — it is a
+  // grouping, not a place you write an itinerary about. Everything below
+  // `address` describes an actual place and belongs to the destinations inside a
+  // master. The API enforces that split; the columns stay nullable so one table
+  // can hold both rungs.
+  country String? @map("country") // master only, e.g. "India"
+  address String? @map("address") // inside-a-master only, e.g. "Baramulla, J&K, India"
+
+  // Two-level tree. A master destination ("Kashmir") has no parent; the
+  // destinations inside it ("Gulmarg", "Sonmarg", "Pahalgam") point back at it.
+  // Nesting deeper is rejected by the API rather than the schema.
+  parentId String?       @map("parent_id")
+  parent   Destination?  @relation("DestinationTree", fields: [parentId], references: [id], onDelete: Restrict)
+  children Destination[] @relation("DestinationTree")
+
+  // Hotels filed under this destination, at either rung.
+  hotels Hotel[]
+
+  // Type of place — helps categorize for client understanding
+  placeType PlaceType @default(CITY) @map("place_type")
+
+  // Short description — one liner for cards and previews
+  shortDescription String? @map("short_description")
+
+  // Detailed description — for itinerary use
+  description String? @map("description")
+
+  // What makes this place special
+  highlights Json @default("[]") @map("highlights")
+  // Example: ["Betaab Valley views", "Horse riding in meadows", "Aru Valley day trip"]
+
+  // Amenities/activities available
+  amenities Json @default("[]") @map("amenities")
+  // Example: ["Shikara rides", "Trout fishing", "Trekking", "Pony rides"]
+
+  // Best time to visit
+  bestTimeToVisit String? @map("best_time_to_visit") // e.g., "October to March"
+
+  // Average temperature
+  averageTemperature String? @map("average_temperature") // e.g., "15°C to 25°C"
+
+  // Language(s) spoken
+  language String? @map("language") // e.g., "Kashmiri, Urdu"
+
+  // Currency used
+  currency String? @map("currency") // e.g., "INR"
+
+  // Timezone
+  timezone String? @map("timezone") // e.g., "Asia/Kolkata"
+
+  // Tips, visa info, local customs
+  thingsToKnow String? @map("things_to_know")
+
+  // Alt names (search aliases)
+  altNames Json @default("[]") @map("alt_names")
+  // Example: ["Pahalgam", "Payar", "Pahli Gam"]
+
+  isActive Boolean @default(true) @map("is_active")
+
+  branchId String? @map("branch_id")
+  branch   Branch? @relation(fields: [branchId], references: [id])
+
+  createdBy String? @map("created_by")
+  creator   User?   @relation(fields: [createdBy], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([name])
+  @@index([country])
+  @@index([parentId])
+  @@index([placeType])
+  @@index([address])
+  @@index([isActive])
+  @@index([branchId])
+  @@map("destinations")
+}
+
+// ============================================
+// Hotel Database - Master hotel data for itineraries
+// ============================================
+enum HotelCategory {
+  BUDGET
+  STANDARD
+  PREMIUM
+  LUXURY
+}
+
+model Hotel {
+  id       String        @id @default(cuid())
+  name     String
+  category HotelCategory @default(STANDARD)
+  stars    Int           @default(3) @map("stars")
+
+  // Where the hotel is.
+  //
+  // `destinationId` is the real answer — a node in the destination tree, at
+  // either rung ("Kashmir" or "Gulmarg"). `location` is the plain label derived
+  // from it ("Gulmarg, Kashmir"), kept so itinerary PDFs, search and bulk import
+  // keep working unchanged. When a destination is set the label follows it and is
+  // never edited by hand.
+  destinationId String?      @map("destination_id")
+  destination   Destination? @relation(fields: [destinationId], references: [id], onDelete: SetNull)
+
+  location  String  @map("location")
+  address   String? @map("address")
+  city      String? @map("city")
+  state     String? @map("state")
+  country   String? @map("country")
+  zipCode   String? @map("zip_code")
+  latitude  Float?  @map("latitude")
+  longitude Float?  @map("longitude")
+
+  // Contact info
+  phone   String? @map("phone")
+  email   String? @map("email")
+  website String? @map("website")
+
+  // Hotel features as JSON array
+  amenities Json @default("[]") @map("amenities")
+  // Example: ["WiFi", "Pool", "Gym", "Restaurant", "Spa", "Parking"]
+
+  // Pricing
+  pricePerNight Float?   @map("price_per_night")
+  currency      Currency @default(INR) @map("currency")
+
+  // Room types with bed configurations and pricing
+  // Example: [{"name":"Standard Room","bedType":"Double","basePrice":2000,"extraBedPrice":500,"childPrice":300}]
+  roomTypes Json @default("[]") @map("room_types")
+
+  // Meal plans available at this hotel with pricing
+  // Example: [{"type":"EP","label":"Room Only","pricePerNight":0},{"type":"CP","label":"Breakfast","pricePerNight":300}]
+  mealPlans Json @default("[]") @map("meal_plans")
+
+  // Media
+  images Json @default("[]") @map("images")
+  // Example: ["/uploads/hotels/hotel-1/img1.jpg", "/uploads/hotels/hotel-1/img2.jpg"]
+
+  // Description
+  description String? @map("description")
+
+  // Status
+  isActive Boolean @default(true) @map("is_active")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([category])
+  @@index([stars])
+  @@index([location])
+  @@index([destinationId])
+  @@index([isActive])
+  @@map("hotels")
+}
+
+// ============================================
+// Vehicle Database - Master transport data for itineraries
+// ============================================
+enum VehicleCategory {
+  ECONOMY
+  STANDARD
+  PREMIUM
+  LUXURY
+}
+
+enum VehicleType {
+  SEDAN
+  SUV
+  MUDF
+  MINI_BUS
+  BUS
+  TEMPO_TRAVELLER
+  CAR
+  VAN
+  JEEP
+  LIMOUSINE
+  OTHER
+}
+
+model Vehicle {
+  id          String          @id @default(cuid())
+  name        String // e.g., "Toyota Innova Crysta", "Mercedes Benz S-Class"
+  brand       String? // e.g., "Toyota", "Mercedes"
+  vehicleType VehicleType     @default(SEDAN) @map("vehicle_type")
+  category    VehicleCategory @default(STANDARD)
+
+  // Registration details
+  registrationNumber String  @unique @map("registration_number")
+  vehicleNumber      String? @map("vehicle_number") // Alternative name for registration
+
+  // Capacity
+  seatingCapacity Int     @default(4) @map("seating_capacity")
+  isAc            Boolean @default(true) @map("is_ac")
+
+  // Driver details
+  driverName    String? @map("driver_name")
+  driverPhone   String? @map("driver_phone")
+  driverLicense String? @map("driver_license")
+
+  // Features/Amenities as JSON array
+  // Example: ["AC", "Music", "WiFi", "USB Charging", "Comfortable Seats"]
+  features Json @default("[]") @map("features")
+
+  // Pricing
+  ratePerKm     Float?   @map("rate_per_km")
+  ratePerDay    Float?   @map("rate_per_day")
+  minimumCharge Float?   @map("minimum_charge")
+  currency      Currency @default(INR) @map("currency")
+
+  // Location/Service area
+  baseLocation String? @map("base_location")
+  serviceArea  String? @map("service_area") // Cities/routes the vehicle services
+
+  // Media - Cloudinary URLs
+  images Json @default("[]") @map("images")
+
+  // Description/Notes
+  description String? @map("description")
+
+  // Status
+  isActive Boolean @default(true) @map("is_active")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([vehicleType])
+  @@index([category])
+  @@index([seatingCapacity])
+  @@index([isAc])
+  @@index([isActive])
+  @@map("vehicles")
+}
+
+// ============================================
+// Trip Payment Tracking - Multiple payments per trip
+// ============================================
+enum PaymentMode {
+  CASH
+  BANK_TRANSFER
+  CARD
+  UPI
+  CHEQUE
+  OTHER
+}
+
+model TripPayment {
+  id          String @id @default(cuid())
+  itineraryId String @map("itinerary_id")
+  branchId    String @map("branch_id")
+
+  amount          Float       @map("amount")
+  paymentMode     PaymentMode @default(CASH) @map("payment_mode")
+  paymentDate     DateTime    @default(now()) @map("payment_date")
+  referenceNumber String?     @map("reference_number") // Receipt/transaction ID
+
+  // Optional receipt image uploaded to Cloudinary
+  receiptUrl String? @map("receipt_url")
+
+  notes      String?
+  recordedBy String  @map("recorded_by")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  itinerary Itinerary @relation(fields: [itineraryId], references: [id], onDelete: Cascade)
+  branch    Branch    @relation(fields: [branchId], references: [id])
+  recorder  User      @relation(fields: [recordedBy], references: [id])
+
+  @@index([itineraryId])
+  @@index([branchId])
+  @@index([paymentDate])
+  @@index([recordedBy])
+  @@map("trip_payments")
+}
+
+// ============================================================
+// Trip lifecycle + receivables/payables
+// ============================================================
+
+/// Lifecycle status set by staff. Distinct from the date-derived
+/// UPCOMING/ONGOING/COMPLETED state computed in trip.controller.js.
+enum TripStatus {
+  DRAFT
+  CONFIRMED
+  CANCELLED
+}
+
+enum PaymentScheduleStatus {
+  PENDING
+  PARTIAL
+  PAID
+  WAIVED
+}
+
+/// A planned instalment the customer owes on a trip.
+/// "Due Incoming" on the dashboard reads unpaid rows by dueDate.
+model PaymentSchedule {
+  id          String @id @default(cuid())
+  itineraryId String @map("itinerary_id")
+  branchId    String @map("branch_id")
+
+  label      String   @map("label") // e.g. "Advance", "Balance", "Instalment 2"
+  amount     Float    @map("amount")
+  paidAmount Float    @default(0) @map("paid_amount")
+  dueDate    DateTime @map("due_date")
+
+  status PaymentScheduleStatus @default(PENDING)
+  notes  String?
+
+  createdBy String @map("created_by")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  itinerary Itinerary @relation(fields: [itineraryId], references: [id], onDelete: Cascade)
+  branch    Branch    @relation(fields: [branchId], references: [id])
+  creator   User      @relation("PaymentScheduleCreator", fields: [createdBy], references: [id])
+
+  @@index([itineraryId])
+  @@index([branchId])
+  @@index([dueDate])
+  @@index([status, dueDate])
+  @@index([branchId, status, dueDate])
+  @@map("payment_schedules")
+}
+
+enum SupplierType {
+  HOTEL
+  VEHICLE
+  ACTIVITY
+  FLIGHT
+  GUIDE
+  OTHER
+}
+
+enum PayableStatus {
+  PENDING
+  PARTIAL
+  PAID
+  CANCELLED
+}
+
+/// Money the agency owes a supplier for a trip.
+/// "Due Outgoing" on the dashboard reads unpaid rows by dueDate.
+model SupplierPayable {
+  id          String @id @default(cuid())
+  itineraryId String @map("itinerary_id")
+  branchId    String @map("branch_id")
+
+  supplierType  SupplierType @default(OTHER) @map("supplier_type")
+  supplierName  String       @map("supplier_name")
+  /// Optional link to the Hotel/Vehicle record this payable came from
+  supplierRefId String?      @map("supplier_ref_id")
+
+  amount     Float    @map("amount")
+  paidAmount Float    @default(0) @map("paid_amount")
+  dueDate    DateTime @map("due_date")
+
+  status          PayableStatus @default(PENDING)
+  paymentMode     PaymentMode?  @map("payment_mode")
+  referenceNumber String?       @map("reference_number")
+  notes           String?
+
+  /// Set when the row was generated from the itinerary's day plan rather than entered by hand
+  autoGenerated Boolean @default(false) @map("auto_generated")
+
+  createdBy String @map("created_by")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  itinerary Itinerary @relation(fields: [itineraryId], references: [id], onDelete: Cascade)
+  branch    Branch    @relation(fields: [branchId], references: [id])
+  creator   User      @relation("SupplierPayableCreator", fields: [createdBy], references: [id])
+
+  @@index([itineraryId])
+  @@index([branchId])
+  @@index([dueDate])
+  @@index([status, dueDate])
+  @@index([branchId, status, dueDate])
+  @@index([supplierType])
+  @@map("supplier_payables")
+}

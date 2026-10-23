@@ -1,0 +1,74 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node --check src/services/cron.service.js)",
+      "Bash(node --check src/controllers/auth.controller.js)",
+      "Bash(node --check src/routes/auth.routes.js)",
+      "Bash(node --check src/controllers/user.controller.js)",
+      "Bash(node --check src/controllers/analytics.controller.js)",
+      "Bash(node --check src/routes/analytics.routes.js)",
+      "Bash(sed -n '265,270p' components/hotels/hotel-select-dialog.tsx)",
+      "Bash(sed -n '689,695p' components/hotels/hotel-select-dialog.tsx)",
+      "Bash(awk 'NR>=270 && NR<=695' components/hotels/hotel-select-dialog.tsx)",
+      "Bash(awk 'NR>=1020 && NR<=1080' app/'\\(protected\\)'/itineraries/'[id]'/components/edit-trip-dialog.tsx)",
+      "Bash(awk 'NR>=550 && NR<=650' app/'\\(protected\\)'/itineraries/'[id]'/components/edit-trip-dialog.tsx)",
+      "Bash(awk 'NR>=770 && NR<=830' app/'\\(protected\\)'/itineraries/'[id]'/components/edit-trip-dialog.tsx)",
+      "Bash(awk 'NR>=1070 && NR<=1080' app/'\\(protected\\)'/itineraries/'[id]'/components/edit-trip-dialog.tsx)",
+      "Bash(awk 'NR>=1029 && NR<=1075' app/'\\(protected\\)'/itineraries/'[id]'/components/edit-trip-dialog.tsx)",
+      "Bash(awk 'NR>=1060 && NR<=1085' app/'\\(protected\\)'/itineraries/'[id]'/components/edit-trip-dialog.tsx)",
+      "Bash(awk 'NR>=1040 && NR<=1075' app/'\\(protected\\)'/itineraries/'[id]'/components/edit-trip-dialog.tsx)",
+      "Bash(awk 'NR>=1075 && NR<=1090' app/'\\(protected\\)'/itineraries/'[id]'/components/edit-trip-dialog.tsx)",
+      "WebFetch(domain:www.nngroup.com)",
+      "WebFetch(domain:www.smashingmagazine.com)",
+      "WebFetch(domain:www.figma.com)",
+      "WebFetch(domain:xd.adobe.com)",
+      "WebFetch(domain:www.usertesting.com)",
+      "WebFetch(domain:www.interaction-design.org)",
+      "WebFetch(domain:ixdf.org)",
+      "Read(//e/Webinvolve/Awees/frontend/components/layout/**)",
+      "WebFetch(domain:www.wanderlog.com)",
+      "WebFetch(domain:www.airbnb.com)",
+      "Read(//e/Webinvolve/Awees/frontend/app/\\(protected\\)/itineraries/[id]/components/**)",
+      "Read(//e/Webinvolve/Awees/frontend/components/ui/**)",
+      "Read(//c/Users/huzfm/Downloads/**)",
+      "Bash(ls -la \"2110970_Jammu___Kashmir_5840146_RhX9_250810_153949.pdf\")",
+      "Bash(dir \"2110970_Jammu___Kashmir_5840146_RhX9_250810_153949.pdf\")",
+      "mcp__OpusMax__understand_image",
+      "Read(//e/Webinvolve/Awees/frontend/types/**)",
+      "Read(//tmp/**)",
+      "Read(//e/Webinvolve/Awees/frontend/app/\\(protected\\)/itineraries/**)",
+      "Read(//e/Webinvolve/Awees/frontend/hooks/**)",
+      "Read(//e/Webinvolve/Awees/Backend/src/routes/**)",
+      "Read(//e/Webinvolve/Awees/frontend/app/\\(protected\\)/settings/itinerary-templates/**)",
+      "Read(//e/Webinvolve/Awees/frontend/components/itinerary/**)",
+      "Read(//e/Webinvolve/Awees/frontend/app/\\(protected\\)/leads/[id]/components/dialogs/**)",
+      "Read(//e/Webinvolve/Axes/Backend/src/controllers/**)",
+      "Bash(next dev --no-turbo)",
+      "Bash(next build)",
+      "Bash(next dev --webpack)",
+      "Read(//e/Webinvolve/Awees/frontend/components/itineraries/**)",
+      "Read(//e/Webinvolve/Awees/**)",
+      "Bash(sed -n '260,470p' \"e:\\\\Webinvolve\\\\Awees\\\\frontend\\\\app\\\\\\(protected\\)\\\\itineraries\\\\new\\\\components\\\\PricingSummaryForm.tsx\")",
+      "Bash(sed -n '260,470p' \"e:/Webinvolve/Azees/frontend/app/\\(protected\\)/itineraries/new/components/PricingSummaryForm.tsx\")",
+      "Bash(dir \"E:\\\\Webinvolve\\\\Azees\\\\frontend\\\\app\\\\favicon.ico\")",
+      "Bash(dir /a /s favicon.ico)",
+      "Bash(dir \"E:\\\\Webinvolve\\\\Azees\\\\frontend\\\\app\\\\\\(auth\\)\\\\login\")"
+    ],
+    "additionalDirectories": [
+      "\\tmp"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Glob|Grep",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -f graphify-out/graph.json ] && echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"additionalContext\":\"graphify: Knowledge graph exists. Read graphify-out/GRAPH_REPORT.md for god nodes and community structure before searching raw files.\"}}' || true"
+          }
+        ]
+      }
+    ]
+  }
+}

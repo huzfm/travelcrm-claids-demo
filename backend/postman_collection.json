@@ -1,0 +1,900 @@
+{
+  "info": {
+    "name": "Travel Agency CRM API",
+    "description": "Multi-branch Travel Agency CRM Backend",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000/api/v1"
+    },
+    {
+      "key": "accessToken",
+      "value": ""
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "POST /auth/login",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"password123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}", "auth", "login"]
+            },
+            "description": "Login and get access token + refresh token cookie"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.success && jsonData.data.accessToken) {",
+                  "    pm.collectionVariables.set('accessToken', jsonData.data.accessToken);",
+                  "}",
+                  "",
+                  "pm.test('Login successful', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Has access token', function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data.accessToken).to.be.a('string');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /auth/refresh",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "refreshToken={{refreshToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/refresh",
+              "host": ["{{baseUrl}}", "auth", "refresh"]
+            },
+            "description": "Refresh access token using httpOnly cookie"
+          }
+        },
+        {
+          "name": "POST /auth/logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": ["{{baseUrl}}", "auth", "logout"]
+            },
+            "description": "Logout and clear refresh token cookie"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Branches (ADMIN only)",
+      "item": [
+        {
+          "name": "GET /branches",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/branches",
+              "host": ["{{baseUrl}}", "branches"]
+            },
+            "description": "List all branches"
+          }
+        },
+        {
+          "name": "POST /branches",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Dubai Branch\",\n  \"country\": \"UAE\",\n  \"timezone\": \"Asia/Dubai\",\n  \"whatsappNumber\": \"123456789\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/branches",
+              "host": ["{{baseUrl}}", "branches"]
+            },
+            "description": "Create a new branch"
+          }
+        },
+        {
+          "name": "GET /branches/:id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/branches/:id",
+              "host": ["{{baseUrl}}", "branches", ":id"]
+            },
+            "description": "Get branch by ID"
+          }
+        },
+        {
+          "name": "PATCH /branches/:id",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Branch Name\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/branches/:id",
+              "host": ["{{baseUrl}}", "branches", ":id"]
+            },
+            "description": "Update branch"
+          }
+        },
+        {
+          "name": "GET /branches/:id/stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/branches/:id/stats",
+              "host": ["{{baseUrl}}", "branches", ":id", "stats"]
+            },
+            "description": "Get branch statistics"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "GET /users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users",
+              "host": ["{{baseUrl}}", "users"]
+            },
+            "description": "List users (ADMIN sees all, MANAGER sees own branch)"
+          }
+        },
+        {
+          "name": "POST /users (ADMIN only)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Staff\",\n  \"email\": \"john@agency.com\",\n  \"password\": \"password123\",\n  \"role\": \"STAFF\",\n  \"branchId\": \"your-branch-id\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users",
+              "host": ["{{baseUrl}}", "users"]
+            },
+            "description": "Create new user (ADMIN only)"
+          }
+        },
+        {
+          "name": "GET /users/:id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/:id",
+              "host": ["{{baseUrl}}", "users", ":id"]
+            },
+            "description": "Get user by ID"
+          }
+        },
+        {
+          "name": "PATCH /users/:id",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Name\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/:id",
+              "host": ["{{baseUrl}}", "users", ":id"]
+            },
+            "description": "Update user"
+          }
+        },
+        {
+          "name": "DELETE /users/:id (ADMIN only)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/:id",
+              "host": ["{{baseUrl}}", "users", ":id"]
+            },
+            "description": "Soft delete user (ADMIN only)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Leads",
+      "item": [
+        {
+          "name": "GET /leads",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/leads?page=1&limit=20",
+              "host": ["{{baseUrl}}", "leads"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "NEW",
+                  "description": "Filter by status: NEW, CONTACTED, QUALIFIED, PROPOSAL, BOOKED, LOST"
+                },
+                {
+                  "key": "source",
+                  "value": "WEBSITE",
+                  "description": "Filter by source: WEBSITE, WHATSAPP, WALKIN, SOCIAL, BULK_IMPORT"
+                },
+                {
+                  "key": "assignedTo",
+                  "value": "",
+                  "description": "Filter by assigned user ID"
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "description": "Search by name, phone, or email"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "List leads with filters"
+          }
+        },
+        {
+          "name": "POST /leads",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Ahmed Al-Rashid\",\n  \"phone\": \"+971501234567\",\n  \"email\": \"ahmed@email.com\",\n  \"source\": \"WEBSITE\",\n  \"branchId\": \"your-branch-id\",\n  \"assignedTo\": \"user-id-optional\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/leads",
+              "host": ["{{baseUrl}}", "leads"]
+            },
+            "description": "Create new lead (auto-assigns if no assignedTo)"
+          }
+        },
+        {
+          "name": "GET /leads/:id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/leads/:id",
+              "host": ["{{baseUrl}}", "leads", ":id"]
+            },
+            "description": "Get lead with activities, follow-ups, itineraries, messages"
+          }
+        },
+        {
+          "name": "PATCH /leads/:id",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"CONTACTED\",\n  \"assignedTo\": \"new-user-id\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/leads/:id",
+              "host": ["{{baseUrl}}", "leads", ":id"]
+            },
+            "description": "Update lead (status changes create activity logs)"
+          }
+        },
+        {
+          "name": "DELETE /leads/:id (MANAGER/ADMIN)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/leads/:id",
+              "host": ["{{baseUrl}}", "leads", ":id"]
+            },
+            "description": "Soft delete lead"
+          }
+        },
+        {
+          "name": "POST /leads/bulk-import",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "description": "CSV file with columns: name, phone, email, source"
+                },
+                {
+                  "key": "branchId",
+                  "value": "your-branch-id",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/leads/bulk-import",
+              "host": ["{{baseUrl}}", "leads", "bulk-import"]
+            },
+            "description": "Bulk import leads from CSV"
+          }
+        },
+        {
+          "name": "GET /leads/:id/activities",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/leads/:id/activities?page=1&limit=20",
+              "host": ["{{baseUrl}}", "leads", ":id", "activities"]
+            },
+            "description": "Get paginated activity log"
+          }
+        },
+        {
+          "name": "POST /leads/:id/activities",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"NOTE\",\n  \"description\": \"Customer called, interested in Dubai package\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/leads/:id/activities",
+              "host": ["{{baseUrl}}", "leads", ":id", "activities"]
+            },
+            "description": "Add activity (NOTE, CALL, WHATSAPP, EMAIL)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Follow-ups",
+      "item": [
+        {
+          "name": "GET /followups",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/followups?status=pending&date=2024-01-15",
+              "host": ["{{baseUrl}}", "followups"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "pending",
+                  "description": "pending, overdue, done, rescheduled"
+                },
+                {
+                  "key": "assignedTo",
+                  "value": "",
+                  "description": "Filter by assigned user"
+                },
+                {
+                  "key": "date",
+                  "value": "YYYY-MM-DD",
+                  "description": "Filter by date"
+                }
+              ]
+            },
+            "description": "List follow-ups"
+          }
+        },
+        {
+          "name": "GET /followups/dashboard",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/followups/dashboard",
+              "host": ["{{baseUrl}}", "followups", "dashboard"]
+            },
+            "description": "Get today's pending, overdue count, upcoming 7 days"
+          }
+        },
+        {
+          "name": "GET /followups/:id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/followups/:id",
+              "host": ["{{baseUrl}}", "followups", ":id"]
+            },
+            "description": "Get follow-up by ID"
+          }
+        },
+        {
+          "name": "POST /followups",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"leadId\": \"lead-id\",\n  \"assignedTo\": \"user-id\",\n  \"scheduledAt\": \"2024-01-15T10:00:00Z\",\n  \"notes\": \"Discuss package options\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/followups",
+              "host": ["{{baseUrl}}", "followups"]
+            },
+            "description": "Create follow-up"
+          }
+        },
+        {
+          "name": "PATCH /followups/:id",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"DONE\",\n  \"notes\": \"Completed - customer agreed to book\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/followups/:id",
+              "host": ["{{baseUrl}}", "followups", ":id"]
+            },
+            "description": "Update follow-up (status, reschedule, complete)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Itineraries",
+      "item": [
+        {
+          "name": "GET /itineraries",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/itineraries?branchId=&leadId=",
+              "host": ["{{baseUrl}}", "itineraries"],
+              "query": [
+                {
+                  "key": "branchId",
+                  "value": "",
+                  "description": "Filter by branch"
+                },
+                {
+                  "key": "leadId",
+                  "value": "",
+                  "description": "Filter by lead"
+                }
+              ]
+            },
+            "description": "List itineraries"
+          }
+        },
+        {
+          "name": "POST /itineraries",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"leadId\": \"lead-id\",\n  \"title\": \"Dubai Adventure 5 Days\",\n  \"destination\": \"Dubai, UAE\",\n  \"daysJson\": [\n    {\n      \"day\": 1,\n      \"activities\": [\"Arrival at Dubai Airport\", \"Hotel check-in\", \"Evening Dubai Mall visit\"],\n      \"hotel\": \"Burj Al Arab (5-star)\",\n      \"transport\": \"Private car\",\n      \"meals\": \"Dinner included\"\n    },\n    {\n      \"day\": 2,\n      \"activities\": [\"Desert Safari\", \"Camel Ride\", \"Belly Dance Show\"],\n      \"hotel\": \"Burj Al Arab\",\n      \"transport\": \"4x4 Jeep\",\n      \"meals\": \"Breakfast, Dinner\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/itineraries",
+              "host": ["{{baseUrl}}", "itineraries"]
+            },
+            "description": "Create itinerary"
+          }
+        },
+        {
+          "name": "GET /itineraries/:id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/itineraries/:id",
+              "host": ["{{baseUrl}}", "itineraries", ":id"]
+            },
+            "description": "Get itinerary by ID"
+          }
+        },
+        {
+          "name": "PATCH /itineraries/:id",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Title\",\n  \"daysJson\": [...]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/itineraries/:id",
+              "host": ["{{baseUrl}}", "itineraries", ":id"]
+            },
+            "description": "Update itinerary (increments version)"
+          }
+        },
+        {
+          "name": "POST /itineraries/:id/pdf",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/itineraries/:id/pdf",
+              "host": ["{{baseUrl}}", "itineraries", ":id", "pdf"]
+            },
+            "description": "Generate PDF from itinerary (saves to uploads/itineraries)"
+          }
+        },
+        {
+          "name": "POST /itineraries/:id/share",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"via\": \"whatsapp\",\n  \"recipientPhone\": \"+971501234567\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/itineraries/:id/share",
+              "host": ["{{baseUrl}}", "itineraries", ":id", "share"]
+            },
+            "description": "Share itinerary via WhatsApp or link"
+          }
+        },
+        {
+          "name": "GET /itineraries/templates",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/itineraries/templates",
+              "host": ["{{baseUrl}}", "itineraries", "templates"]
+            },
+            "description": "List global and branch templates"
+          }
+        },
+        {
+          "name": "POST /itineraries/templates",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Standard Dubai Tour\",\n  \"destination\": \"Dubai\",\n  \"daysJson\": [...]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/itineraries/templates",
+              "host": ["{{baseUrl}}", "itineraries", "templates"]
+            },
+            "description": "Create itinerary template"
+          }
+        },
+        {
+          "name": "DELETE /itineraries/templates/:id",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/itineraries/templates/:id",
+              "host": ["{{baseUrl}}", "itineraries", "templates", ":id"]
+            },
+            "description": "Delete template (MANAGER+ only)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "WhatsApp",
+      "item": [
+        {
+          "name": "GET /whatsapp/webhook",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/whatsapp/webhook?hub.mode=subscribe&hub.verify_token=your-webhook-verify-token&hub.challenge=challenge",
+              "host": ["{{baseUrl}}", "whatsapp", "webhook"],
+              "query": [
+                {
+                  "key": "hub.mode",
+                  "value": "subscribe"
+                },
+                {
+                  "key": "hub.verify_token",
+                  "value": "your WHATSAPP_VERIFY_TOKEN"
+                },
+                {
+                  "key": "hub.challenge",
+                  "value": "challenge_value"
+                }
+              ]
+            },
+            "description": "Verify WhatsApp webhook with Meta"
+          }
+        },
+        {
+          "name": "POST /whatsapp/webhook",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"object\": \"whatsapp_business_account\",\n  \"entry\": [...]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/whatsapp/webhook",
+              "host": ["{{baseUrl}}", "whatsapp", "webhook"]
+            },
+            "description": "Receive incoming WhatsApp messages"
+          }
+        },
+        {
+          "name": "GET /whatsapp/inbox",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/whatsapp/inbox",
+              "host": ["{{baseUrl}}", "whatsapp", "inbox"]
+            },
+            "description": "Get all conversations grouped by lead"
+          }
+        },
+        {
+          "name": "POST /whatsapp/send",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"leadId\": \"lead-id\",\n  \"message\": \"Hello! Here is your itinerary.\",\n  \"type\": \"text\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/whatsapp/send",
+              "host": ["{{baseUrl}}", "whatsapp", "send"]
+            },
+            "description": "Send WhatsApp message to lead"
+          }
+        },
+        {
+          "name": "GET /whatsapp/conversations/:leadId",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/whatsapp/conversations/:leadId",
+              "host": ["{{baseUrl}}", "whatsapp", "conversations", ":leadId"]
+            },
+            "description": "Get full message thread for a lead"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Analytics",
+      "item": [
+        {
+          "name": "GET /analytics/pipeline",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/analytics/pipeline?branchId=&startDate=2024-01-01&endDate=2024-12-31",
+              "host": ["{{baseUrl}}", "analytics", "pipeline"],
+              "query": [
+                {
+                  "key": "branchId",
+                  "value": "",
+                  "description": "Filter by branch (ADMIN only for other branches)"
+                },
+                {
+                  "key": "startDate",
+                  "value": "YYYY-MM-DD"
+                },
+                {
+                  "key": "endDate",
+                  "value": "YYYY-MM-DD"
+                }
+              ]
+            },
+            "description": "Lead count grouped by status"
+          }
+        },
+        {
+          "name": "GET /analytics/sources",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/analytics/sources?branchId=&startDate=&endDate=",
+              "host": ["{{baseUrl}}", "analytics", "sources"]
+            },
+            "description": "Lead count grouped by source"
+          }
+        },
+        {
+          "name": "GET /analytics/conversion",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/analytics/conversion?branchId=&startDate=&endDate=",
+              "host": ["{{baseUrl}}", "analytics", "conversion"]
+            },
+            "description": "Conversion rate (total leads vs booked)"
+          }
+        },
+        {
+          "name": "GET /analytics/team",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/analytics/team?branchId=&startDate=&endDate=",
+              "host": ["{{baseUrl}}", "analytics", "team"]
+            },
+            "description": "Per-user stats (leads, follow-ups, bookings)"
+          }
+        },
+        {
+          "name": "GET /analytics/offices (ADMIN)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/analytics/offices?startDate=&endDate=",
+              "host": ["{{baseUrl}}", "analytics", "offices"]
+            },
+            "description": "Summary per branch (ADMIN only)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health Check",
+      "item": [
+        {
+          "name": "GET /health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}", "health"]
+            },
+            "description": "API health check (no auth required)"
+          }
+        }
+      ]
+    }
+  ]
+}

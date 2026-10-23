@@ -1,0 +1,65 @@
+
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build output
+dist/
+build/
+out/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Logs
+logs/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# =========================
+# PostgreSQL
+# =========================
+
+# Local database files (if using local setups or dumps)
+*.sql
+*.dump
+*.backup
+
+# Docker volumes (if using Postgres in Docker)
+pgdata/
+postgres-data/
+
+
+# =========================
+# Sequelize (if used)
+# =========================
+sequelize-meta.json
+
+# =========================
+# Testing
+# =========================
+coverage/
+.nyc_output/
+
+# Misc
+
+tmp/
+temp/
+.cache/
+
+
+# Production credentials — never commit
+prod.text
