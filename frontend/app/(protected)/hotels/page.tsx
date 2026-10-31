@@ -44,7 +44,7 @@ import type { Hotel, HotelFilters, HotelCategory } from '@/types';
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') ||
-  'https://travelcrm-azeesbackend.boi7rl.easypanel.host';
+  'https://claids-travel-crm-web.boi7rl.easypanel.host';
 
 const getImageUrl = (path: string) => {
   if (!path) return undefined;

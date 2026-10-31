@@ -5,7 +5,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { ensureValidSession, forceLogout, getToken } from '@/lib/axios';
 
 const BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || 'https://travelcrm-azeesbackend.boi7rl.easypanel.host/api/v1';
+  process.env.NEXT_PUBLIC_API_URL || 'https://claids-travel-crm-web.boi7rl.easypanel.host/api/v1';
 
 /**
  * Subscribe to the backend's SSE stream and invalidate the right React Query

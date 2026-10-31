@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Direct backend URL - no proxy needed
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://travelcrm-azeesbackend.boi7rl.easypanel.host/api/v1';
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://claids-travel-crm-web.boi7rl.easypanel.host/api/v1';
 
 export const api = axios.create({
   baseURL: BASE_URL,
