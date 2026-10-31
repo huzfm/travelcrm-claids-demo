@@ -98,7 +98,7 @@ app.use(
     origin: [
       'http://localhost:3000',
       'http://localhost:3001',
-      'https://crm.claidsom',
+      'https://crm.claids.com',
       'https://claids-travel-crm-server.boi7rl.easypanel.host',
     ],
     credentials: true,
