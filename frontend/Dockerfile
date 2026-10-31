@@ -66,13 +66,13 @@ USER nodejs
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
-ENV PORT=3000
+ENV PORT=3010
 ENV HOSTNAME="0.0.0.0"
 ENV NPM_CONFIG_CACHE=/home/nodejs/.npm
 
-EXPOSE 3000
+EXPOSE 3010
 
 HEALTHCHECK --interval=15s --timeout=5s --start-period=60s --retries=3 \
-  CMD wget -q --spider http://localhost:3000/ || exit 1
+  CMD wget -q --spider http://localhost:3010/ || exit 1
 
 CMD ["node", "server.js"]

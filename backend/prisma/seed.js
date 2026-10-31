@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs';
 import { defaultPermissionsForRole } from '../src/config/permissions.js';
 
 const prisma = new PrismaClient();
-const DOMAIN = 'tripoday.com';
+const DOMAIN = 'claids.com';
 
 async function main() {
   console.log('🌱 Starting database seed...\n');
