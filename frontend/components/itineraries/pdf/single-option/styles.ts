@@ -19,7 +19,7 @@ export {
   getCurrencySymbol,
 } from './utils';
 
-// Tripoday Holidays Brand Identity - Fixed Colors
+// Claids Travel Brand Identity - Fixed Colors
 // Red / white / black only. Every named slot below still exists so every
 // existing `colors.x` reference keeps working — they just all resolve into
 // this one palette now instead of the old purple/gold/blue/green mix.

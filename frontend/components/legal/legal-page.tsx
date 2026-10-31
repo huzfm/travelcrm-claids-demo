@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 
-export const COMPANY_NAME = 'Tripoday';
-export const PRODUCT_NAME = 'Tripoday CRM';
+export const COMPANY_NAME = 'Claids Travel';
+export const PRODUCT_NAME = 'Claids Travel CRM';
 export const CONTACT_EMAIL = 'info@claidspheresolutions.com';
 export const LAST_UPDATED = '29 September 2026';
 

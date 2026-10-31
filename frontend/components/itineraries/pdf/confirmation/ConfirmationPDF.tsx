@@ -27,8 +27,8 @@ const T = (props: ComponentProps<typeof Text>) => (
 
 export const CONFIRMATION_FONT = 'Montserrat';
 
-const COMPANY_LEGAL_NAME = 'TRIPODAY INDIA PVT. LTD.';
-const COMPANY_GREETING_NAME = 'Tripoday India Pvt. Ltd.';
+const COMPANY_LEGAL_NAME = 'CLAIDS TRAVEL';
+const COMPANY_GREETING_NAME = 'Claids Travel';
 const COMPANY_CITIES = ['Srinagar', 'Delhi', 'India'];
 const COMPANY_WEBSITE = 'www.tripoday.com';
 const COMPANY_ADDRESS = 'Srinagar, Jammu & Kashmir';
@@ -395,7 +395,7 @@ export function ConfirmationPDFDocument({
               style={{ width: 150, height: (150 * logo.height) / logo.width }}
             />
           ) : (
-            <T style={{ fontSize: 26, fontWeight: 800, color: C.red }}>tripoday</T>
+            <T style={{ fontSize: 26, fontWeight: 800, color: C.red }}>Claids Travel</T>
           )}
           <View style={s.company}>
             <T style={s.companyName}>{COMPANY_LEGAL_NAME}</T>

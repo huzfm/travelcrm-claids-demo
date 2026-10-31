@@ -5,7 +5,6 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 import { useAuthContext } from '@/components/providers';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -275,21 +274,12 @@ export default function LoginPage() {
 
         {/* Content */}
         <div className="relative z-10 flex flex-col justify-center px-12 xl:px-20 text-white">
-          <div className="relative w-80 aspect-16/5 mx-auto mb-8 rounded-2xl overflow-hidden shadow-xl ring-1 ring-white/20">
-            <Image
-              src="/login.PNG"
-              alt="Tripoday Holidays"
-              fill
-              sizes="320px"
-              className="object-cover"
-              priority
-            />
-          </div>
+          <p className="mb-8 text-3xl font-bold tracking-tight">Claids Travel CRM</p>
           <h1 className="text-4xl xl:text-5xl font-bold leading-tight mb-4">
             One Team. One Platform
           </h1>
           <p className="text-lg text-white/80 max-w-md leading-relaxed">
-            Designed to help Tripoday Holidays work smarter, collaborate better, and deliver
+            Designed to help Claids Travel work smarter, collaborate better, and deliver
             exceptional travel experiences.
           </p>
         </div>
@@ -299,16 +289,9 @@ export default function LoginPage() {
       <div className="flex-1 flex items-center justify-center px-6 sm:px-8 lg:px-12 bg-background">
         <div className="w-full max-w-sm">
           {/* Logo for mobile */}
-          <div className="lg:hidden relative w-64 aspect-16/5 mx-auto mb-8 rounded-xl overflow-hidden shadow-brand">
-            <Image
-              src="/login.PNG"
-              alt="Tripoday Holidays"
-              fill
-              sizes="256px"
-              className="object-cover"
-              priority
-            />
-          </div>
+          <p className="lg:hidden mb-8 text-center text-2xl font-bold tracking-tight text-primary">
+            Claids Travel CRM
+          </p>
 
           {/* OTP Verification Screen */}
           {requiresOTP ? (
@@ -493,7 +476,7 @@ export default function LoginPage() {
               </div>
 
               <p className="mt-8 text-center text-sm text-muted-foreground">
-                © 2026 Tripoday Holidays CRM
+                © 2026 Claids Travel CRM
               </p>
             </>
           )}

@@ -29,11 +29,11 @@ const inter = localFont({
 });
 
 export const metadata: Metadata = {
-  title: 'Tripoday Holidays CRM',
+  title: 'Claids Travel CRM',
   description: 'Travel Agency Customer Relationship Management System',
   icons: {
-    icon: '/tablogo.png',
-    apple: '/tablogo.png',
+    icon: '/claids-icon.svg',
+    apple: '/claids-icon.svg',
   },
 };
 

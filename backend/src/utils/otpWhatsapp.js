@@ -17,7 +17,7 @@ import WHATSAPP_CONFIG from '../config/whatsapp.config.js';
 const { otp: otpConfig, baseUrl, apiKey, requestTimeout } = WHATSAPP_CONFIG;
 
 const OTP_INSTANCE = otpConfig.instanceName;
-const APP_NAME = process.env.APP_NAME || 'Tripoday';
+const APP_NAME = process.env.APP_NAME || 'Claids Travel';
 
 /**
  * Normalize phone number for WhatsApp

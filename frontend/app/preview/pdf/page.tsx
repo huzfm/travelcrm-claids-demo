@@ -29,7 +29,7 @@ export default function PDFPreviewPage() {
       title: 'Sample Itinerary',
       destination: 'Dubai',
       branch: {
-        name: 'Tripoday',
+        name: 'Claids Travel',
         email: 'info@claidspheresolutions.com',
         address: '123 Main Street, Dubai, UAE',
         whatsappNumber: '+971501234567',

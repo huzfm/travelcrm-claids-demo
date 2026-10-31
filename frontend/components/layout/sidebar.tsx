@@ -1,7 +1,6 @@
 'use client';
 
 import { usePathname, useRouter } from 'next/navigation';
-import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { useAuthContext } from '@/components/providers';
 import {
@@ -141,16 +140,14 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
           isCollapsed && 'lg:h-16 lg:items-center lg:justify-center lg:p-0'
         )}
       >
-        {/* Full-bleed logo banner; the image's transparent padding is cropped away */}
-        <div className={cn('absolute inset-0 scale-75', isCollapsed && 'lg:hidden')}>
-          <Image
-            src="/white1.png"
-            alt="Tripoday"
-            fill
-            sizes="288px"
-            className="object-cover"
-            priority
-          />
+        {/* Brand name */}
+        <div
+          className={cn(
+            'absolute inset-0 flex items-center justify-center text-xl font-bold tracking-tight text-primary',
+            isCollapsed && 'lg:hidden'
+          )}
+        >
+          Claids Travel
         </div>
 
         <Button

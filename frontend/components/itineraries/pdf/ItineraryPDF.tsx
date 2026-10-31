@@ -88,7 +88,7 @@ const ItineraryPDFDocument = ({
   itinerary,
   days,
   quote,
-  branchName = 'Tripoday Holidays',
+  branchName = 'Claids Travel',
   currency = 'INR',
   options,
   imageQuality = 'normal',

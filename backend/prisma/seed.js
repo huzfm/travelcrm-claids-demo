@@ -34,7 +34,7 @@ async function main() {
       email: `admin@${DOMAIN}`,
       phone: '+91 7006087880',
       address: 'Srinagar, Jammu & Kashmir, India',
-      companyName: 'Tripoday',
+      companyName: 'Claids Travel',
       contactPerson: 'Branch Manager',
       workingHours: [],
     },

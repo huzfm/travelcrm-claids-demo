@@ -224,7 +224,7 @@ function CoverFooterFieldsEditor({
           label="Company name"
           value={value.companyName}
           onChange={v => onChange({ ...value, companyName: v })}
-          placeholder="Tripoday Holidays"
+          placeholder="Claids Travel"
         />
         <Field
           label="Tagline"

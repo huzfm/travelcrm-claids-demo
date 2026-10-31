@@ -15,13 +15,13 @@ interface TermsSectionProps {
 
 const defaultTerms = [
 "All bookings are considered confirmed only after receipt of the required advance payment.",
-  "Tripoday Holidays reserves the right to refuse or cancel any booking due to operational, legal, or security reasons.",
+  "Claids Travel reserves the right to refuse or cancel any booking due to operational, legal, or security reasons.",
   "All communication and booking confirmations issued through official company channels shall be considered valid.",
   "Package prices are confidential and intended solely for the recipient.",
   "Any modification requested after confirmation may attract additional charges.",
   "The company reserves the right to substitute hotels, vehicles, or services with equivalent alternatives when necessary.",
   "Guests are expected to comply with local laws, hotel regulations, and destination guidelines throughout the journey.",
-  "Tripoday Holidays acts only as a facilitator between guests and service providers including hotels, airlines, transport operators, and attractions.",
+  "Claids Travel acts only as a facilitator between guests and service providers including hotels, airlines, transport operators, and attractions.",
   "The company shall not be held responsible for service interruptions caused by weather conditions, natural disasters, strikes, government restrictions, or other force majeure events.",
   "By confirming the booking, the guest acknowledges and agrees to all company policies and booking conditions."
 ];

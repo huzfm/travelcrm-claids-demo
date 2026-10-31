@@ -230,7 +230,7 @@ function ThankYouPreview({ value, accent }: { value: ThankYouPageContent; accent
   const sample = (text: string) =>
     text
       .replace(/\{clientName\}/g, 'Rahul Verma')
-      .replace(/\{companyName\}|\{branchName\}/g, 'Tripoday Holidays')
+      .replace(/\{companyName\}|\{branchName\}/g, 'Claids Travel')
       .replace(/\{phone\}|\{whatsapp\}/g, COMPANY_PHONE_TEXT)
       .replace(/\{email\}/g, COMPANY_EMAIL)
       .replace(/\{address\}/g, 'Office address');
