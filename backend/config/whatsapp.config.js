@@ -18,7 +18,7 @@ const WHATSAPP_CONFIG = {
 
   // OTP/Authentication instance - ONLY use this for forgot password OTP
   otp: {
-    instanceName: process.env.EVOLUTION_OTP_INSTANCE || 'centraltripodayinstance',
+    instanceName: process.env.EVOLUTION_OTP_INSTANCE || 'centralclaidsstance',
     description: 'Used ONLY for OTP and forgot password',
   },
 

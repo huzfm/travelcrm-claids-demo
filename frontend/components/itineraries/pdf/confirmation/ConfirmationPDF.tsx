@@ -30,7 +30,7 @@ export const CONFIRMATION_FONT = 'Montserrat';
 const COMPANY_LEGAL_NAME = 'CLAIDS TRAVEL';
 const COMPANY_GREETING_NAME = 'Claids Travel';
 const COMPANY_CITIES = ['Srinagar', 'Delhi', 'India'];
-const COMPANY_WEBSITE = 'www.tripoday.com';
+const COMPANY_WEBSITE = 'www.claidsom';
 const COMPANY_ADDRESS = 'Srinagar, Jammu & Kashmir';
 
 const IMPORTANT_INFO = [

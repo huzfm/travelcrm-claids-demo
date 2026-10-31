@@ -22,7 +22,7 @@ console.log('[OTP INSTANCE TEST] Starting OTP instance verification...');
 console.log('='.repeat(60));
 
 // Get OTP instance name from config
-const OTP_INSTANCE_NAME = process.env.EVOLUTION_OTP_INSTANCE || 'centraltripodayinstance';
+const OTP_INSTANCE_NAME = process.env.EVOLUTION_OTP_INSTANCE || 'centralclaidsstance';
 const PHONE_TO_TEST = process.argv[2] || process.env.CENTRAL_WHATSAPP_NUMBER || '';
 
 console.log(`\n[CONFIG]`);

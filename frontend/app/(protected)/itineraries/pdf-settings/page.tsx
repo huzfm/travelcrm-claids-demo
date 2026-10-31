@@ -29,7 +29,7 @@ import {
 } from '@/components/itineraries/pdf/quote-layout/defaults';
 
 const EMPTY_FOOTER: PDFFooterFields = {
-  items: ['+91 8222899961', '+91 9682376275', 'kashmir@tripoday.com'],
+  items: ['+91 8222899961', '+91 9682376275', 'kashmir@claidsom'],
 };
 const EMPTY_COVER_FOOTER: PDFCoverFooterFields = {
   companyName: '',

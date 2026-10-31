@@ -5,7 +5,7 @@
  * It must NEVER be touched by any user-facing routes.
  */
 
-const CENTRAL_WA_INSTANCE_NAME = process.env.CENTRAL_WA_INSTANCE_NAME || 'centraltripodayinstance';
+const CENTRAL_WA_INSTANCE_NAME = process.env.CENTRAL_WA_INSTANCE_NAME || 'centralclaidsstance';
 
 /**
  * Assert that an instance name is NOT the central instance

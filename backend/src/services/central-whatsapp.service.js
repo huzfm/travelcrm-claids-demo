@@ -18,7 +18,7 @@ const EVOLUTION_API_KEY = (process.env.EVOLUTION_API_KEY || '').trim();
 const CENTRAL_INSTANCE =
   process.env.CENTRAL_WHATSAPP_INSTANCE ||
   process.env.EVOLUTION_OTP_INSTANCE ||
-  'centraltripodayinstance';
+  'centralclaidsstance';
 // const CENTRAL_WHATSAPP_NUMBER = process.env.CENTRAL_WHATSAPP_NUMBER || '';
 const REQUEST_TIMEOUT = 30000; // 30 seconds
 

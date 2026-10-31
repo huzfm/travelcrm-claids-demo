@@ -935,7 +935,7 @@ export const forgotPassword = async (req, res) => {
         phone: normalizedPhone,
         otpHash,
         otpExpiry,
-        sentViaInstance: process.env.CENTRAL_WHATSAPP_INSTANCE || 'centraltripodayinstance',
+        sentViaInstance: process.env.CENTRAL_WHATSAPP_INSTANCE || 'centralclaidsstance',
       },
     });
 

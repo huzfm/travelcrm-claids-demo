@@ -71,7 +71,7 @@ export const DEFAULT_PDF_TERMS: PDFTermsSettings = {
       ],
     },
     {
-      title: 'Name on Account: Tripoday India Pvt Ltd',
+      title: 'Name on Account: claidsndia Pvt Ltd',
       points: [
         point('Account Number: 923020027264737'),
         point('IFSC Code : UTIB0001994'),
