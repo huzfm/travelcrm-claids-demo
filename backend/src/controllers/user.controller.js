@@ -469,6 +469,7 @@ export const updateUser = async (req, res) => {
         updateData.passwordHash = await bcrypt.hash(password, 10);
         // Invalidate all refresh tokens for this user (force re-login)
         updateData.refreshToken = null;
+        updateData.tokenVersion = { increment: 1 };
       }
     }
 

@@ -20,13 +20,13 @@ export const getUserPermissions = async userId => {
 
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { permissions: true, isActive: true, role: true },
+    select: { permissions: true, isActive: true, role: true, tokenVersion: true },
   });
 
   if (!user || !user.isActive) return null;
 
   const permissions = user.role === 'ADMIN' ? null : user.permissions || [];
-  const value = { role: user.role, permissions };
+  const value = { role: user.role, permissions, tokenVersion: user.tokenVersion };
   cacheService.set(cacheKey(userId), value, CACHE_TTL_SECONDS);
   return value;
 };

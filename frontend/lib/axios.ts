@@ -182,7 +182,8 @@ api.interceptors.response.use(
       return api(originalRequest);
     }
 
-    forceLogout(error.response?.data?.code === 'ACCOUNT_DEACTIVATED' ? 'revoked' : 'expired');
+    const code = error.response?.data?.code;
+    forceLogout(code === 'ACCOUNT_DEACTIVATED' || code === 'SESSION_REVOKED' ? 'revoked' : 'expired');
     return Promise.reject(error);
   }
 );

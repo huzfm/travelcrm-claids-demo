@@ -189,6 +189,9 @@ model User {
 
   isActive         Boolean   @default(true) @map("is_active")
   refreshToken     String?   @map("refresh_token")
+  // Bumped whenever the password changes. Every JWT carries the version it was
+  // issued under; a mismatch means the token predates the change and is dead.
+  tokenVersion     Int       @default(0) @map("token_version")
   resetToken       String?   @map("reset_token")
   resetCode        String?   @map("reset_code")
   resetTokenExpiry DateTime? @map("reset_token_expiry")

@@ -7,6 +7,7 @@ export const generateAccessToken = user => {
       email: user.email,
       role: user.role,
       branchId: user.branchId,
+      tv: user.tokenVersion ?? 0,
       // Advisory only — the frontend uses this to decide what to render.
       // Enforcement always re-reads permissions from the database.
       permissions: user.role === 'ADMIN' ? null : user.permissions || [],
@@ -23,6 +24,7 @@ export const generateRefreshToken = user => {
       email: user.email,
       role: user.role,
       branchId: user.branchId,
+      tv: user.tokenVersion ?? 0,
     },
     process.env.JWT_REFRESH_SECRET,
     { expiresIn: '30d' }

@@ -1,7 +1,8 @@
 import jwt from 'jsonwebtoken';
 import { scopeRoleOf } from '../config/roles.js';
+import { getUserPermissions } from '../services/permission.service.js';
 
-export const authenticate = (req, res, next) => {
+export const authenticate = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
 
@@ -16,6 +17,25 @@ export const authenticate = (req, res, next) => {
 
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+      // A valid signature is not enough: the token must still match the
+      // account's current state. tokenVersion changes on every password
+      // change, which revokes tokens issued to other devices before it.
+      const account = await getUserPermissions(decoded.id);
+      if (!account) {
+        return res.status(401).json({
+          success: false,
+          error: 'Account is deactivated',
+          code: 'ACCOUNT_DEACTIVATED',
+        });
+      }
+      if ((decoded.tv ?? 0) !== account.tokenVersion) {
+        return res.status(401).json({
+          success: false,
+          error: 'Session revoked. Please login again.',
+          code: 'SESSION_REVOKED',
+        });
+      }
 
       req.user = {
         id: decoded.id,

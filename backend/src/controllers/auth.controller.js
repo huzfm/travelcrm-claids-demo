@@ -13,6 +13,7 @@ import { sendOTP } from '../services/central-whatsapp.service.js';
 import { toE164, phoneConflictWhere } from '../utils/phone.js';
 import { extractPublicId, deleteFromCloudinary } from '../services/cloudinary.service.js';
 import prisma from '../config/prisma.js';
+import { invalidateUserPermissions } from '../services/permission.service.js';
 
 // TEMP: Set to true to skip OTP (for dev/testing). Set false or unset for production.
 const DISABLE_OTP = process.env.DISABLE_OTP === 'true';
@@ -476,7 +477,7 @@ export const refresh = async (req, res) => {
       },
     });
 
-    if (!user || !user.refreshToken) {
+    if (!user || !user.refreshToken || (decoded.tv ?? 0) !== user.tokenVersion) {
       return res.status(401).json({
         success: false,
         error: 'Session expired',
@@ -778,14 +779,11 @@ export const changePassword = async (req, res) => {
     const newPasswordHash = await bcrypt.hash(newPassword, 10);
     await prisma.user.update({
       where: { id: req.user.id },
-      data: { passwordHash: newPasswordHash },
+      // Clearing the refresh token and bumping tokenVersion kills every
+      // session, including access tokens already handed out to other devices.
+      data: { passwordHash: newPasswordHash, refreshToken: null, tokenVersion: { increment: 1 } },
     });
-
-    // Invalidate all refresh tokens (logout all sessions)
-    await prisma.user.update({
-      where: { id: req.user.id },
-      data: { refreshToken: null },
-    });
+    invalidateUserPermissions(req.user.id);
 
     clearRefreshTokenCookie(res);
 
@@ -848,14 +846,10 @@ export const adminChangePassword = async (req, res) => {
     const newPasswordHash = await bcrypt.hash(newPassword, 10);
     await prisma.user.update({
       where: { id: userId },
-      data: { passwordHash: newPasswordHash },
+      // Force re-login everywhere: refresh token gone, access tokens rejected.
+      data: { passwordHash: newPasswordHash, refreshToken: null, tokenVersion: { increment: 1 } },
     });
-
-    // Invalidate all refresh tokens for this user (force re-login)
-    await prisma.user.update({
-      where: { id: userId },
-      data: { refreshToken: null },
-    });
+    invalidateUserPermissions(userId);
 
     res.json({
       success: true,
@@ -1158,8 +1152,10 @@ export const resetPassword = async (req, res) => {
       data: {
         passwordHash: newPasswordHash,
         refreshToken: null, // Invalidate all sessions
+        tokenVersion: { increment: 1 }, // ...and every outstanding access token
       },
     });
+    invalidateUserPermissions(user.id);
 
     // Delete OTP record
     await prisma.oTP.deleteMany({

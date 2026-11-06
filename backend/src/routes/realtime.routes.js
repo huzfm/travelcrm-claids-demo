@@ -2,6 +2,7 @@ import { Router } from 'express';
 import jwt from 'jsonwebtoken';
 import { scopeRoleOf } from '../config/roles.js';
 import { addSubscriber, bumpSubscriber } from '../services/realtime.service.js';
+import { getUserPermissions } from '../services/permission.service.js';
 
 const router = Router();
 
@@ -65,7 +66,7 @@ router.get('/stream', (req, res) => {
  * Helper endpoint: trade a Bearer access token for a short-lived SSE token.
  * The frontend calls this once after login, then opens the EventSource.
  */
-router.post('/token', (req, res) => {
+router.post('/token', async (req, res) => {
   const authHeader = req.headers.authorization || '';
   if (!authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ success: false, error: 'No token provided' });
@@ -73,6 +74,10 @@ router.post('/token', (req, res) => {
   const token = authHeader.split(' ')[1];
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const account = await getUserPermissions(decoded.id);
+    if (!account || (decoded.tv ?? 0) !== account.tokenVersion) {
+      return res.status(401).json({ success: false, error: 'Session revoked' });
+    }
     // Re-sign the same payload; the only thing that changes is the audience tag.
     const sseToken = jwt.sign(
       { id: decoded.id, role: decoded.role, branchId: decoded.branchId, scope: 'sse' },
